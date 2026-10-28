@@ -85,7 +85,7 @@ export function FormulaireArtisan({
         <legend className="mb-2 text-sm font-bold">Autres zones où vous travaillez</legend>
         <div className="flex flex-wrap gap-2">
           {quartiers.map((q) => (
-            <label key={q.slug} className="flex h-9 cursor-pointer items-center rounded-full border border-trait bg-carte px-3 text-[13px] font-semibold has-checked:border-brique has-checked:bg-brique-clair has-checked:text-brique-fonce">
+            <label key={q.slug} className="flex h-9 cursor-pointer items-center rounded-full border border-trait bg-carte px-3 text-[13px] font-semibold has-checked:border-nuit has-checked:bg-chantier-clair has-checked:text-encre">
               <input type="checkbox" name="zones" value={q.slug} defaultChecked={fiche?.zones.includes(q.slug)} className="sr-only" />
               {q.nom}
             </label>

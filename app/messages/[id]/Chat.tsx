@@ -23,7 +23,7 @@ type Props = {
   ouvrirOffre: boolean;
 };
 
-const LIBELLE_STATUT: Record<StatutOffre, { texte: string; ton: "vert" | "ambre" | "brique" | "gris" }> = {
+const LIBELLE_STATUT: Record<StatutOffre, { texte: string; ton: "vert" | "ambre" | "chantier" | "gris" }> = {
   envoyee: { texte: "En attente de réponse", ton: "ambre" },
   acceptee: { texte: "Acceptée · mission en cours", ton: "vert" },
   refusee: { texte: "Refusée", ton: "gris" },
@@ -135,17 +135,17 @@ export function Chat(props: Props) {
 
   return (
     <div className="flex h-dvh flex-col">
-      <header className="flex items-center gap-2.5 border-b border-trait bg-carte px-4 pt-6 pb-3">
-        <Link href="/messages" aria-label="Retour aux messages" className="flex size-11 items-center justify-center rounded-full">
+      <header className="flex items-center gap-2.5 bg-nuit px-4 pt-6 pb-3 text-white">
+        <Link href="/messages" aria-label="Retour aux messages" className="flex size-11 items-center justify-center rounded-full bg-white/10">
           <IconeRetour />
         </Link>
         <Avatar nom={props.autre} taille="sm" />
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="truncate text-[15px] font-bold">{props.autre}</span>
-          <span className="truncate text-xs text-gris">{props.sujet ? `Devis : ${props.sujet}` : estArtisan ? "Client" : "Artisan"}</span>
+          <span className="truncate text-xs text-slate-300">{props.sujet ? `Devis : ${props.sujet}` : estArtisan ? "Client" : "Artisan"}</span>
         </span>
         {estArtisan ? (
-          <button type="button" onClick={() => setFormOffre((v) => !v)} className="bouton-secondaire min-h-10 px-3 text-[13px]">
+          <button type="button" onClick={() => setFormOffre((v) => !v)} className="bouton min-h-10 px-3.5 text-[13px]">
             {formOffre ? "Fermer" : "Faire une offre"}
           </button>
         ) : null}
@@ -194,7 +194,7 @@ export function Chat(props: Props) {
               {m.contenu ? (
                 <p
                   className={`px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
-                    deMoi ? "rounded-[18px_18px_4px_18px] bg-brique text-white" : "rounded-[18px_18px_18px_4px] border border-trait bg-carte"
+                    deMoi ? "rounded-[18px_18px_4px_18px] bg-nuit text-white" : "rounded-[18px_18px_18px_4px] border border-trait bg-carte"
                   }`}
                 >
                   {m.contenu}
@@ -228,9 +228,9 @@ export function Chat(props: Props) {
             onChange={(e) => setTexte(e.target.value)}
             placeholder="Votre message…"
             autoComplete="off"
-            className="h-11 min-w-0 flex-1 rounded-full border border-trait bg-fond px-4 text-sm outline-none focus:border-brique"
+            className="h-11 min-w-0 flex-1 rounded-full border border-trait bg-fond px-4 text-sm outline-none focus:border-nuit"
           />
-          <button type="submit" disabled={envoi || !texte.trim()} aria-label="Envoyer" className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brique text-white disabled:opacity-50">
+          <button type="submit" disabled={envoi || !texte.trim()} aria-label="Envoyer" className="flex size-11 shrink-0 items-center justify-center rounded-full bg-nuit text-white disabled:opacity-50">
             <IconeEnvoyer />
           </button>
         </form>
@@ -275,9 +275,11 @@ function CarteOffre({
   };
 
   return (
-    <article className="flex w-[270px] flex-col gap-2.5 self-start rounded-[18px] border border-trait bg-carte p-3.5">
-      <span className="text-xs font-bold tracking-wide text-brique-fonce uppercase">Offre</span>
-      <h3 className="text-[15px] font-bold">{offre.titre}</h3>
+    <article className="carte flex w-[280px] flex-col gap-3 self-start overflow-hidden p-0">
+      <div className="ruban h-2" aria-hidden />
+      <div className="flex flex-col gap-2.5 px-4 pb-4">
+      <span className="text-xs font-bold text-chantier-fonce">Offre de prix</span>
+      <h3 className="font-titre text-[17px] leading-snug font-extrabold">{offre.titre}</h3>
       <dl className="flex flex-col gap-1 text-[13px] text-gris">
         <div className="flex justify-between"><dt>Prix</dt><dd className="font-bold text-encre">{fcfa(offre.prix)}</dd></div>
         <div className="flex justify-between"><dt>Date</dt><dd className="font-bold text-encre">{dateCourte(offre.date_prevue)}</dd></div>
@@ -292,7 +294,7 @@ function CarteOffre({
         </div>
       ) : null}
       {estClient && offre.statut === "acceptee" ? (
-        <button disabled={occupe} onClick={() => lancer("terminer_offre")} className="bouton-secondaire border-brique">
+        <button disabled={occupe} onClick={() => lancer("terminer_offre")} className="bouton-secondaire border-nuit">
           Le travail est terminé
         </button>
       ) : null}
@@ -302,6 +304,7 @@ function CarteOffre({
       {!estClient && offre.statut === "envoyee" ? (
         <button disabled={occupe} onClick={() => lancer("annuler_offre")} className="bouton-secondaire">Retirer l&apos;offre</button>
       ) : null}
+      </div>
     </article>
   );
 }

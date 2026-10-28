@@ -1,24 +1,31 @@
 @import "tailwindcss";
 
-/* Couleurs et polices de la maquette Ligeey */
+/*
+  Ligeey : identité « chantier »
+  béton clair (fond) · bleu nuit (structure) · jaune chantier (actions)
+*/
 @theme {
-  --color-fond: #f6f4ef;
+  --color-fond: #eceff1;
   --color-carte: #ffffff;
-  --color-encre: #1c1b19;
-  --color-gris: #5f5b54;
-  --color-trait: #e4e0d8;
-  --color-photo: #e9e4da;
-  --color-brique: #c2410c;
-  --color-brique-fonce: #9a3412;
-  --color-brique-clair: #fbe9df;
-  --color-nuit: #1f2a37;
+  --color-encre: #141a26;
+  --color-gris: #535d6c;
+  --color-trait: #d9dee4;
+  --color-photo: #dde2e7;
+  --color-nuit: #16213a;
+  --color-nuit-doux: #24324f;
+  --color-chantier: #f5b70f;
+  --color-chantier-vif: #e5a800;
+  --color-chantier-clair: #fff2c7;
+  --color-chantier-fonce: #6e4f00;
   --color-vert: #15803d;
-  --color-vert-clair: #e7f5ec;
+  --color-vert-clair: #e3f4e9;
   --color-ambre: #92400e;
-  --color-ambre-clair: #fef3c7;
+  --color-ambre-clair: #fdecc8;
 
   --font-sans: "Manrope Variable", system-ui, sans-serif;
-  --font-titre: "Space Grotesk Variable", system-ui, sans-serif;
+  --font-titre: "Bricolage Grotesque Variable", "Manrope Variable", system-ui, sans-serif;
+
+  --shadow-carte: 0 1px 0 rgb(22 33 58 / 0.06), 0 8px 24px -16px rgb(22 33 58 / 0.25);
 }
 
 html,
@@ -30,36 +37,79 @@ body {
 body {
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
+  font-feature-settings: "ss01", "tnum";
 }
 
-/* Champs de formulaire communs */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+/* Focus clavier bien visible */
+:focus-visible {
+  outline: 3px solid var(--color-chantier);
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Ruban de chantier jaune et noir : utilisé à un seul endroit (bloc « demande de devis ») */
+@utility ruban {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--color-chantier) 0 14px,
+    var(--color-encre) 14px 28px
+  );
+}
+
 @utility champ {
   width: 100%;
-  min-height: 48px;
-  border-radius: 12px;
-  border: 1px solid var(--color-trait);
+  min-height: 50px;
+  border-radius: 14px;
+  border: 1.5px solid var(--color-trait);
   background: var(--color-carte);
   padding: 0 14px;
   font-size: 15px;
   outline: none;
+  transition: border-color 0.15s;
   &:focus {
-    border-color: var(--color-brique);
+    border-color: var(--color-nuit);
+  }
+  &::placeholder {
+    color: #7b8492;
   }
 }
 
+/* Bouton principal : jaune chantier, texte foncé (contraste AA) */
 @utility bouton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 50px;
-  padding: 0 20px;
+  gap: 8px;
+  min-height: 52px;
+  padding: 0 22px;
   border-radius: 14px;
-  background: var(--color-brique);
-  color: white;
-  font-weight: 700;
+  background: var(--color-chantier);
+  color: var(--color-encre);
+  font-weight: 800;
   font-size: 15px;
+  box-shadow: inset 0 -3px 0 rgb(0 0 0 / 0.12);
+  transition: background 0.15s, transform 0.1s;
   &:hover {
-    background: var(--color-brique-fonce);
+    background: var(--color-chantier-vif);
+  }
+  &:active {
+    transform: translateY(1px);
+    box-shadow: inset 0 -1px 0 rgb(0 0 0 / 0.12);
   }
   &:disabled {
     opacity: 0.6;
@@ -70,12 +120,26 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
+  gap: 8px;
+  min-height: 46px;
   padding: 0 16px;
   border-radius: 12px;
-  border: 1px solid var(--color-trait);
+  border: 1.5px solid var(--color-trait);
   background: var(--color-carte);
   color: var(--color-encre);
   font-weight: 700;
   font-size: 14px;
+  transition: border-color 0.15s;
+  &:hover {
+    border-color: var(--color-nuit);
+  }
+  &:disabled {
+    opacity: 0.6;
+  }
+}
+
+@utility carte {
+  background: var(--color-carte);
+  border-radius: 20px;
+  box-shadow: var(--shadow-carte);
 }

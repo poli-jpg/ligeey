@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Mes demandes" };
 
 const STATUT = {
   ouverte: { texte: "Ouverte", ton: "vert" },
-  pourvue: { texte: "Pourvue", ton: "brique" },
+  pourvue: { texte: "Pourvue", ton: "chantier" },
   fermee: { texte: "Fermée", ton: "gris" },
 } as const;
 
@@ -56,7 +56,7 @@ export default async function MesDemandes({ searchParams }: { searchParams: Prom
                 {d.statut === "ouverte" ? (
                   <form action={fermerDemande}>
                     <input type="hidden" name="id" value={d.id} />
-                    <button className="font-semibold text-brique">Fermer</button>
+                    <button className="font-semibold text-nuit">Fermer</button>
                   </form>
                 ) : null}
               </div>

@@ -12,7 +12,7 @@ import { Disponibilite } from "./Disponibilite";
 export const metadata: Metadata = { title: "Mon activité" };
 
 const URGENCE = {
-  urgent: { texte: "Urgent", ton: "brique" },
+  urgent: { texte: "Urgent", ton: "chantier" },
   semaine: { texte: "Cette semaine", ton: "gris" },
   flexible: { texte: "Flexible", ton: "gris" },
 } as const;

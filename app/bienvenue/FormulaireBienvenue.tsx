@@ -34,8 +34,8 @@ export function FormulaireBienvenue({ quartiers, suite }: { quartiers: Quartier[
           { v: "client", titre: "Je cherche un artisan", texte: "Trouver, contacter et noter des professionnels." },
           { v: "artisan", titre: "Je suis artisan", texte: "Créer mon profil et recevoir des demandes de clients." },
         ].map((o) => (
-          <label key={o.v} className="flex cursor-pointer gap-3 rounded-2xl border border-trait bg-carte p-4 has-checked:border-brique has-checked:bg-brique-clair">
-            <input type="radio" name="type" value={o.v} defaultChecked={o.v === "client"} className="mt-1 accent-brique" />
+          <label key={o.v} className="flex cursor-pointer gap-3 rounded-2xl border border-trait bg-carte p-4 has-checked:border-nuit has-checked:bg-chantier-clair">
+            <input type="radio" name="type" value={o.v} defaultChecked={o.v === "client"} className="mt-1 accent-nuit" />
             <span className="flex flex-col gap-0.5">
               <span className="font-bold">{o.titre}</span>
               <span className="text-[13px] text-gris">{o.texte}</span>

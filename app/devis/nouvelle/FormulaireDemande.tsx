@@ -31,7 +31,7 @@ export function FormulaireDemande({
         <legend className="mb-2 text-sm font-bold">Quel métier ?</legend>
         <div className="flex flex-wrap gap-2">
           {metiers.map((m) => (
-            <label key={m.slug} className="flex h-10 cursor-pointer items-center rounded-full border border-trait bg-carte px-3.5 text-[13px] font-semibold has-checked:border-brique has-checked:bg-brique-clair has-checked:text-brique-fonce">
+            <label key={m.slug} className="flex h-10 cursor-pointer items-center rounded-full border border-trait bg-carte px-3.5 text-[13px] font-semibold has-checked:border-nuit has-checked:bg-chantier-clair has-checked:text-encre">
               <input type="radio" name="metier" value={m.slug} defaultChecked={m.slug === metierInitial} required className="sr-only" />
               {m.nom}
             </label>

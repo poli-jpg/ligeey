@@ -29,14 +29,14 @@ export function FormulaireAvis({ offreId, artisanId }: { offreId: string; artisa
             </label>
           ))}
         </div>
-        <span className="h-5 text-[15px] font-bold text-brique-fonce">{MOTS[noteChoisie]}</span>
+        <span className="h-5 text-[15px] font-bold text-chantier-fonce">{MOTS[noteChoisie]}</span>
       </fieldset>
 
       <fieldset className="w-full">
         <legend className="mb-2 text-sm font-bold">Ce qui vous a plu</legend>
         <div className="flex flex-wrap gap-2">
           {TAGS.map((t) => (
-            <label key={t} className="flex h-10 cursor-pointer items-center rounded-full border border-trait bg-carte px-3.5 text-[13px] font-semibold has-checked:border-brique has-checked:bg-brique-clair has-checked:text-brique-fonce">
+            <label key={t} className="flex h-10 cursor-pointer items-center rounded-full border border-trait bg-carte px-3.5 text-[13px] font-semibold has-checked:border-nuit has-checked:bg-chantier-clair has-checked:text-encre">
               <input type="checkbox" name="tags" value={t} className="sr-only" />
               {t}
             </label>

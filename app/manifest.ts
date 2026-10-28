@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Mise en relation entre artisans du bâtiment et clients.",
     start_url: "/",
     display: "standalone",
-    background_color: "#f6f4ef",
-    theme_color: "#1f2a37",
+    background_color: "#eceff1",
+    theme_color: "#16213a",
     lang: "fr",
     icons: [
       { src: "/icone.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },

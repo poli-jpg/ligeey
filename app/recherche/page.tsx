@@ -46,38 +46,41 @@ export default async function Recherche({ searchParams }: { searchParams: Promis
 
   return (
     <>
-      <header className="flex flex-col gap-3.5 border-b border-trait bg-carte px-5 pt-8 pb-3.5">
-        <div className="flex items-center gap-2.5">
-          <Link href="/" aria-label="Retour" className="flex size-11 shrink-0 items-center justify-center rounded-full border border-trait">
+      <header className="flex flex-col gap-4 rounded-b-[28px] bg-nuit px-5 pt-7 pb-5">
+        <div className="flex items-center gap-3">
+          <Link href="/" aria-label="Retour" className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-white">
             <IconeRetour />
           </Link>
-          {/* Formulaire GET : fonctionne même sans JavaScript */}
-          <form action="/recherche" className="flex flex-1 gap-2">
+          <h1 className="font-titre text-2xl font-extrabold tracking-tight text-white">Trouver un artisan</h1>
+        </div>
+        {/* Formulaire GET : fonctionne même sans JavaScript */}
+        <form action="/recherche" className="flex flex-col gap-2 rounded-2xl bg-white p-2">
+          <div className="flex gap-2">
             <label className="sr-only" htmlFor="metier">Métier</label>
-            <select id="metier" name="metier" defaultValue={metier?.slug ?? ""} className="champ min-h-11 flex-1 bg-fond">
+            <select id="metier" name="metier" defaultValue={metier?.slug ?? ""} className="champ min-h-12 flex-1 border-0 bg-fond font-semibold">
               <option value="">Tous les métiers</option>
               {metiers.map((m) => (
                 <option key={m.slug} value={m.slug}>{m.nom}</option>
               ))}
             </select>
             <label className="sr-only" htmlFor="quartier">Quartier</label>
-            <select id="quartier" name="quartier" defaultValue={quartier} className="champ min-h-11 w-36 bg-fond">
+            <select id="quartier" name="quartier" defaultValue={quartier} className="champ min-h-12 w-[42%] border-0 bg-fond font-semibold">
               <option value="">Partout</option>
               {quartiers.map((q) => (
                 <option key={q.slug} value={q.slug}>{q.nom}</option>
               ))}
             </select>
-            <button className="bouton min-h-11 px-3 text-sm">OK</button>
-          </form>
-        </div>
+          </div>
+          <button className="bouton min-h-12">Rechercher</button>
+        </form>
         <div className="flex flex-wrap gap-2">
           {filtres.map((f) => (
             <Link
               key={f.cle}
               href={lien(f.cle, f.actif ? null : (f.valeur ?? "1"))}
               aria-pressed={f.actif}
-              className={`flex h-9 items-center rounded-full border px-3.5 text-[13px] font-semibold ${
-                f.actif ? "border-brique bg-brique text-white" : "border-trait bg-carte"
+              className={`flex h-9 items-center rounded-full px-3.5 text-[13px] font-bold transition-colors ${
+                f.actif ? "bg-chantier text-encre" : "bg-white/10 text-white hover:bg-white/20"
               }`}
             >
               {f.label}
@@ -86,7 +89,7 @@ export default async function Recherche({ searchParams }: { searchParams: Promis
         </div>
       </header>
 
-      <main className="flex flex-col gap-3 px-5 pt-3.5 pb-28">
+      <main className="flex flex-col gap-3 px-5 pt-5 pb-32">
         <p className="text-sm text-gris">
           <strong className="text-encre">
             {resultats.length} {metier ? metier.nom.toLowerCase() : "artisan"}
@@ -98,7 +101,7 @@ export default async function Recherche({ searchParams }: { searchParams: Promis
         {!error && resultats.length === 0 ? (
           <Vide>
             Personne ne correspond pour l&apos;instant.{" "}
-            <Link href="/devis/nouvelle" className="font-semibold text-brique">Publiez une demande</Link> : les
+            <Link href="/devis/nouvelle" className="font-semibold text-nuit">Publiez une demande</Link> : les
             artisans du métier seront prévenus.
           </Vide>
         ) : null}
