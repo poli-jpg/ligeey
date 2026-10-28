@@ -5,6 +5,7 @@ import { getSession } from "@/lib/supabase/server";
 import { note } from "@/lib/format";
 import { repondreDemande } from "@/actions/mise-en-relation";
 import { BarreNav } from "@/components/BarreNav";
+import { InstallerApp } from "@/components/InstallerApp";
 import { BoutonEnvoi } from "@/components/BoutonEnvoi";
 import { Avatar, Pastille, Titre2, Vide } from "@/components/ui";
 import { Disponibilite } from "./Disponibilite";
@@ -69,6 +70,8 @@ export default async function EspaceArtisan({ searchParams }: { searchParams: Pr
             <span className="text-[13px] font-semibold text-vert">{artisan.verification === "en_attente" ? "" : "Commencer"}</span>
           </Link>
         ) : null}
+
+        <InstallerApp />
 
         <div className="grid grid-cols-3 gap-2">
           {[

@@ -40,6 +40,14 @@ body {
   font-feature-settings: "ss01", "tnum";
 }
 
+/* Appli installée : pas d'effet élastique ni de surlignage au toucher */
+@media (display-mode: standalone) {
+  html,
+  body {
+    overscroll-behavior-y: none;
+  }
+}
+
 h1,
 h2,
 h3 {

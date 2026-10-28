@@ -3,6 +3,7 @@ import { getSession } from "@/lib/supabase/server";
 import { chargerReferentiels } from "@/lib/referentiels";
 import type { ArtisanRecherche } from "@/lib/types";
 import { BarreNav } from "@/components/BarreNav";
+import { InstallerApp } from "@/components/InstallerApp";
 import { CarteArtisan } from "@/components/CarteArtisan";
 import { IconeLieu, IconeMetier, IconeRecherche, Logo } from "@/components/Icones";
 import { Titre2, Vide } from "@/components/ui";
@@ -67,6 +68,8 @@ export default async function Accueil() {
             ))}
           </div>
         </section>
+
+        <InstallerApp />
 
         {/* Demande de devis : le seul endroit avec le ruban de chantier */}
         <section className="overflow-hidden rounded-[24px] bg-chantier">

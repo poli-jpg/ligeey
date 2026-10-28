@@ -88,6 +88,20 @@ Ces règles ont été testées sur un Postgres 16 + PostGIS (triche refusée, ac
 
 **Quartiers** : les coordonnées des 18 quartiers de départ sont approximatives (centre du quartier). Complète ou affine la table `quartiers` au besoin.
 
+## Application mobile (PWA)
+
+Ligeey s'installe comme une appli, sans Play Store ni App Store :
+
+- **Android (Chrome)** : la carte « Installer Ligeey » apparaît sur l'accueil → bouton **Installer**. Sinon menu ⋮ › *Installer l'application*.
+- **iPhone (Safari)** : bouton Partager › *Sur l'écran d'accueil* (la carte l'explique).
+- **Appui long sur l'icône** (Android) : raccourcis *Chercher*, *Demande*, *Messages*.
+- **Sans réseau** : page « Pas de connexion internet », retour automatique quand le réseau revient.
+- **Nouvelle version déployée** : un bandeau propose « Mettre à jour ».
+
+Fichiers : `app/manifest.ts`, `public/sw.js` (changer `VERSION` quand on le modifie), `components/PWA.tsx`, `components/InstallerApp.tsx`, `app/hors-ligne/`, icônes dans `public/icones/`.
+
+Le service worker ne tourne qu'en production : pour le tester en local, `npm run build && npm start`.
+
 ## Déployer sur Vercel
 
 1. Pousse le dépôt sur GitHub, puis importe-le dans Vercel.
@@ -101,6 +115,5 @@ Ces règles ont été testées sur un Postgres 16 + PostGIS (triche refusée, ac
 - [ ] Notifications : nouvelle demande pour l'artisan, nouvelle offre pour le client (Web Push ou SMS)
 - [ ] Bouton « Signaler » sur les profils et messages (table `signalements` prête)
 - [ ] Géolocalisation GPS en option, en plus du quartier
-- [ ] Mode hors ligne (service worker)
 - [ ] Paiement d'acompte Wave / Orange Money
 - [ ] Types TypeScript générés : `npx supabase gen types typescript --linked > lib/database.types.ts`
