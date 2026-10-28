@@ -1,0 +1,106 @@
+# Ligeey
+
+Application de mise en relation entre **artisans du bâtiment** (maçons, électriciens, plombiers, peintres…) et **clients**, au Sénégal.
+
+PWA mobile (installable sur Android depuis le navigateur) · **Next.js 16** · **Supabase** (Auth par SMS, Postgres + PostGIS, Realtime, Storage) · **Vercel**.
+
+---
+
+## Démarrer en local
+
+### 1. Créer le projet Supabase
+
+1. Crée un projet sur [supabase.com](https://supabase.com).
+2. Applique le schéma de la base. Deux possibilités :
+   - **Le plus simple** : ouvre *SQL Editor*, colle le contenu de `supabase/migrations/20261028000000_schema_initial.sql` et exécute-le.
+   - **Avec le CLI** :
+     ```bash
+     npx supabase init          # répondre "N" aux questions VS Code / Deno
+     npx supabase link --project-ref <ref-du-projet>
+     npx supabase db push
+     ```
+3. Active la **connexion par téléphone** : *Authentication › Sign In / Providers › Phone*.
+   - Il faut un fournisseur SMS (Twilio, MessageBird, Vonage…).
+   - **Pour développer sans SMS** : dans la même page, ajoute des *test phone numbers*, par exemple `221770000001=123456`. Tu te connectes alors avec `77 000 00 01` et le code `123456`.
+
+### 2. Lancer l'application
+
+```bash
+cp .env.example .env.local   # puis remplir l'URL et la clé publique (Project Settings › API)
+npm install
+npm run dev
+```
+
+Ouvre <http://localhost:3000>. Dans le navigateur, passe en vue mobile (F12 › icône téléphone).
+
+### 3. Devenir administrateur
+
+Connecte-toi une première fois avec ton numéro, puis dans le *SQL Editor* :
+
+```sql
+update public.profiles set role = 'admin'
+where id = (select id from auth.users where phone = '221784653251');
+```
+
+La page `/admin` permet alors de valider les pièces d'identité (badge « Vérifié »).
+
+---
+
+## Structure
+
+```
+app/
+  page.tsx                 Accueil client
+  recherche/               Recherche + filtres (métier, quartier, dispo, note, vérifié)
+  artisans/[id]/           Profil public d'un artisan
+  connexion/               Connexion par SMS (OTP)
+  bienvenue/               Première connexion : nom, quartier, client ou artisan
+  messages/                Liste des conversations
+  messages/[id]/Chat.tsx   Chat temps réel + cartes d'offre (accepter, terminer, noter)
+  devis/                   Demandes de devis du client (+ nouvelle)
+  avis/[offreId]/          Noter l'artisan après une mission terminée
+  espace/                  Tableau de bord artisan (dispo, demandes près de lui)
+  espace/profil/           Fiche artisan, photos de réalisations, pièce d'identité
+  admin/                   Validation des pièces, signalements
+actions/                   Server Actions (auth, fiche artisan, demandes, avis…)
+components/                Interface réutilisable (navigation, cartes, icônes…)
+lib/supabase/              Clients Supabase : serveur, navigateur, proxy (session)
+proxy.ts                   Rafraîchit la session, protège les pages privées
+supabase/migrations/       Tout le schéma SQL
+```
+
+## Comment la base protège les règles métier
+
+Les règles sont appliquées **dans Postgres** (RLS + fonctions), pas seulement dans l'interface :
+
+| Règle | Où |
+|---|---|
+| Personne ne peut se donner le rôle admin, le badge vérifié ou une fausse note | Droits par colonne (`grant update (…)`) |
+| Une conversation n'est visible que par ses deux participants | RLS `conversations`, `messages` |
+| Seul l'artisan de la conversation peut faire une offre | RLS `offres` |
+| Accepter / refuser / terminer une offre | Fonctions `repondre_offre`, `terminer_offre`, `annuler_offre` |
+| Un avis seulement après une mission **terminée**, une seule fois | RLS `avis` + contrainte unique |
+| La note moyenne est recalculée automatiquement | Trigger `recalculer_note` |
+| Les pièces d'identité ne sont visibles que par l'artisan et l'admin | Bucket privé + politiques Storage |
+| Distance artisan ↔ client | PostGIS, centre du quartier (`quartiers`) |
+
+Ces règles ont été testées sur un Postgres 16 + PostGIS (triche refusée, accès d'un intrus refusé, parcours offre → avis complet).
+
+**Quartiers** : les coordonnées des 18 quartiers de départ sont approximatives (centre du quartier). Complète ou affine la table `quartiers` au besoin.
+
+## Déployer sur Vercel
+
+1. Pousse le dépôt sur GitHub, puis importe-le dans Vercel.
+2. Ajoute les variables `NEXT_PUBLIC_SUPABASE_URL` et `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
+3. Dans Supabase, *Authentication › URL Configuration* : mets l'URL Vercel comme *Site URL*.
+
+## Prochaines étapes
+
+- [ ] Messages vocaux dans le chat (MediaRecorder, le bucket `messages` accepte déjà l'audio)
+- [ ] Photos jointes à une demande de devis (colonne `demandes.photos` prête)
+- [ ] Notifications : nouvelle demande pour l'artisan, nouvelle offre pour le client (Web Push ou SMS)
+- [ ] Bouton « Signaler » sur les profils et messages (table `signalements` prête)
+- [ ] Géolocalisation GPS en option, en plus du quartier
+- [ ] Mode hors ligne (service worker)
+- [ ] Paiement d'acompte Wave / Orange Money
+- [ ] Types TypeScript générés : `npx supabase gen types typescript --linked > lib/database.types.ts`

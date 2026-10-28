@@ -1,0 +1,81 @@
+@import "tailwindcss";
+
+/* Couleurs et polices de la maquette Ligeey */
+@theme {
+  --color-fond: #f6f4ef;
+  --color-carte: #ffffff;
+  --color-encre: #1c1b19;
+  --color-gris: #5f5b54;
+  --color-trait: #e4e0d8;
+  --color-photo: #e9e4da;
+  --color-brique: #c2410c;
+  --color-brique-fonce: #9a3412;
+  --color-brique-clair: #fbe9df;
+  --color-nuit: #1f2a37;
+  --color-vert: #15803d;
+  --color-vert-clair: #e7f5ec;
+  --color-ambre: #92400e;
+  --color-ambre-clair: #fef3c7;
+
+  --font-sans: "Manrope Variable", system-ui, sans-serif;
+  --font-titre: "Space Grotesk Variable", system-ui, sans-serif;
+}
+
+html,
+body {
+  background: var(--color-fond);
+  color: var(--color-encre);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Champs de formulaire communs */
+@utility champ {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid var(--color-trait);
+  background: var(--color-carte);
+  padding: 0 14px;
+  font-size: 15px;
+  outline: none;
+  &:focus {
+    border-color: var(--color-brique);
+  }
+}
+
+@utility bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 0 20px;
+  border-radius: 14px;
+  background: var(--color-brique);
+  color: white;
+  font-weight: 700;
+  font-size: 15px;
+  &:hover {
+    background: var(--color-brique-fonce);
+  }
+  &:disabled {
+    opacity: 0.6;
+  }
+}
+
+@utility bouton-secondaire {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid var(--color-trait);
+  background: var(--color-carte);
+  color: var(--color-encre);
+  font-weight: 700;
+  font-size: 14px;
+}
