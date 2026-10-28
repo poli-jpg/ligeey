@@ -26,8 +26,8 @@ export default async function NoterArtisan({ params }: { params: Promise<{ offre
 
   return (
     <>
-      <Entete retour={`/messages/${offre.conversation_id}`} />
-      <main className="flex flex-col items-center gap-5 px-6 pb-10">
+      <Entete titre="Noter l'artisan" retour={`/messages/${offre.conversation_id}`} />
+      <main className="flex flex-col items-center gap-5 px-5 pt-6 pb-10">
         <Avatar nom={nom} taille="lg" />
         <div className="flex flex-col items-center gap-1 text-center">
           <h1 className="font-titre text-[22px] font-bold">Comment s&apos;est passé le travail ?</h1>

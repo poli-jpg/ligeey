@@ -19,36 +19,45 @@ const NAV_ARTISAN = [
   { href: "/espace/profil", label: "Profil", Icone: IconeCompte },
 ];
 
+/** Onglets du bas façon WhatsApp : collés au bord, pastille jaune derrière l'icône active. */
 export function BarreNav({ role }: { role?: Role | null }) {
   const chemin = usePathname();
   const liens = role === "artisan" ? NAV_ARTISAN : NAV_CLIENT;
-  const actifs = liens.filter(({ href }) => (href === "/" ? chemin === "/" : chemin === href || chemin.startsWith(href + "/")));
-  // Le lien le plus précis gagne (/espace/profil plutôt que /espace)
-  const actif = actifs.sort((a, b) => b.href.length - a.href.length)[0]?.href;
+  const actif = liens
+    .filter(({ href }) => (href === "/" ? chemin === "/" : chemin === href || chemin.startsWith(href + "/")))
+    .sort((a, b) => b.href.length - a.href.length)[0]?.href;
 
   return (
-    <nav
-      aria-label="Navigation principale"
-      className="fixed inset-x-0 bottom-0 z-20 mx-auto max-w-md px-3 pb-[max(env(safe-area-inset-bottom),10px)]"
-    >
-      <div className="grid grid-cols-4 rounded-[22px] bg-nuit p-1.5 shadow-[0_12px_30px_-12px_rgb(22_33_58/0.6)]">
-        {liens.map(({ href, label, Icone }) => {
-          const estActif = href === actif;
-          return (
-            <Link
-              key={href}
-              href={href}
-              aria-current={estActif ? "page" : undefined}
-              className={`flex flex-col items-center justify-center gap-0.5 rounded-2xl py-2 text-[11px] font-bold transition-colors ${
-                estActif ? "bg-chantier text-encre" : "text-slate-300 hover:text-white"
-              }`}
-            >
-              <Icone className="size-[21px]" />
-              {label}
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+    <>
+      {/* Réserve la place de la barre pour que rien ne passe dessous */}
+      <div aria-hidden className="h-[calc(72px+env(safe-area-inset-bottom))]" />
+      <nav
+        aria-label="Navigation principale"
+        className="fixed inset-x-0 bottom-0 z-30 mx-auto max-w-md border-t border-trait bg-carte/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md"
+      >
+        <div className="grid h-[72px] grid-cols-4">
+          {liens.map(({ href, label, Icone }) => {
+            const estActif = href === actif;
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-current={estActif ? "page" : undefined}
+                className="flex flex-col items-center justify-center gap-1"
+              >
+                <span
+                  className={`flex h-8 w-16 items-center justify-center rounded-full transition-colors ${
+                    estActif ? "bg-chantier text-encre" : "text-gris"
+                  }`}
+                >
+                  <Icone className="size-[22px]" />
+                </span>
+                <span className={`text-[12px] ${estActif ? "font-extrabold text-encre" : "font-semibold text-gris"}`}>{label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </>
   );
 }

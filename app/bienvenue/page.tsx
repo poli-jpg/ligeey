@@ -13,7 +13,7 @@ export default async function Bienvenue({ searchParams }: { searchParams: Promis
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="flex flex-col gap-8 rounded-b-[32px] bg-nuit px-5 pt-8 pb-9">
+      <header className="flex flex-col gap-8 rounded-b-[32px] bg-nuit px-5 pt-[calc(env(safe-area-inset-top)+24px)] pb-9">
         <Logo clair />
         <div className="flex flex-col gap-2">
           <h1 className="font-titre text-[32px] leading-[1.05] font-extrabold tracking-tight text-white">Bienvenue</h1>

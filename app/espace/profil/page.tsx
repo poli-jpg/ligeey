@@ -33,8 +33,8 @@ export default async function ProfilArtisanEdition({ searchParams }: { searchPar
 
   return (
     <>
-      <Entete titre={fiche ? "Mon profil" : "Créer mon profil artisan"} retour={fiche ? "/espace" : undefined} />
-      <main className="flex flex-col gap-8 px-5 pb-28">
+      <Entete titre={fiche ? "Mon profil" : "Créer mon profil artisan"}  />
+      <main className="flex flex-col gap-8 px-4 pt-5 pb-4">
         {nouveau && !fiche ? (
           <p className="text-[15px] text-gris">Ces informations apparaissent sur votre profil public. Vous pourrez les modifier à tout moment.</p>
         ) : null}

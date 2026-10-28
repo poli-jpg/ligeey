@@ -23,7 +23,7 @@ export default async function Accueil() {
   return (
     <>
       {/* En-tête bleu nuit : salutation + recherche */}
-      <header className="rounded-b-[32px] bg-nuit px-5 pt-8 pb-16">
+      <header className="rounded-b-[32px] bg-nuit px-5 pt-[calc(env(safe-area-inset-top)+16px)] pb-14">
         <div className="flex items-center justify-between">
           <Logo clair />
           {profil ? (
@@ -40,20 +40,20 @@ export default async function Accueil() {
           )}
         </div>
 
-        <h1 className="mt-8 font-titre text-[34px] leading-[1.05] font-extrabold tracking-tight text-white">
+        <h1 className="mt-6 font-titre text-[28px] leading-[1.1] font-extrabold tracking-tight text-white">
           {prenom ? `${prenom}, qu'est-ce qu'on répare ?` : "Un artisan de confiance, près de chez vous."}
         </h1>
 
         <Link
           href="/recherche"
-          className="mt-6 flex h-14 items-center gap-3 rounded-2xl bg-white px-4 text-[15px] text-gris shadow-lg"
+          className="mt-5 flex h-[52px] items-center gap-3 rounded-2xl bg-white px-4 text-base text-gris shadow-lg"
         >
           <IconeRecherche className="size-5 text-encre" />
           Maçon, plombier, électricien…
         </Link>
       </header>
 
-      <main className="-mt-9 flex flex-col gap-8 px-5 pb-32">
+      <main className="-mt-9 flex flex-col gap-8 px-4 pb-6">
         {/* Métiers */}
         <section aria-labelledby="titre-metiers" className={metiers.length ? "carte p-4" : "hidden"}>
           <h2 id="titre-metiers" className="sr-only">Métiers</h2>

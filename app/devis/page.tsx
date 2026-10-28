@@ -29,7 +29,7 @@ export default async function MesDemandes({ searchParams }: { searchParams: Prom
   return (
     <>
       <Entete titre="Mes demandes" />
-      <main className="flex flex-col gap-4 px-5 pb-28">
+      <main className="flex flex-col gap-4 px-4 pt-4 pb-4">
         {envoyee ? (
           <p className="rounded-2xl bg-vert-clair p-4 text-sm font-semibold text-vert">
             Demande publiée. Les artisans du métier peuvent maintenant vous faire une offre.

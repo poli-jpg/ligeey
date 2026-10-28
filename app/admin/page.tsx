@@ -31,7 +31,7 @@ export default async function Admin() {
   return (
     <>
       <Entete titre="Administration" retour="/" />
-      <main className="flex flex-col gap-4 px-5 pb-10">
+      <main className="flex flex-col gap-4 px-4 pt-5 pb-10">
         <Titre2>Pièces d&apos;identité à vérifier ({verifications?.length ?? 0})</Titre2>
         {!verifications?.length ? <Vide>Rien à vérifier.</Vide> : null}
         {verifications?.map((v, i) => {

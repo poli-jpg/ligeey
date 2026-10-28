@@ -34,9 +34,17 @@ body {
   color: var(--color-encre);
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   font-family: var(--font-sans);
   -webkit-tap-highlight-color: transparent;
+  /* Pas de zoom au double-tap, réponse immédiate au toucher */
+  touch-action: manipulation;
+  overflow-x: hidden;
   font-feature-settings: "ss01", "tnum";
 }
 
@@ -86,7 +94,7 @@ h3 {
   border: 1.5px solid var(--color-trait);
   background: var(--color-carte);
   padding: 0 14px;
-  font-size: 15px;
+  font-size: 16px;
   outline: none;
   transition: border-color 0.15s;
   &:focus {
@@ -146,8 +154,36 @@ h3 {
   }
 }
 
+/* Champ sans bordure, à l'intérieur d'une <Ligne> */
+@utility champ-ligne {
+  width: 100%;
+  min-height: 32px;
+  background: transparent;
+  font-size: 16px;
+  color: var(--color-encre);
+  outline: none;
+  appearance: none;
+  &::placeholder {
+    color: #8a93a0;
+  }
+}
+
+/* Haut d'écran qui passe sous l'heure et la batterie (appli installée) */
+@utility haut-ecran {
+  padding-top: calc(env(safe-area-inset-top) + 20px);
+}
+
 @utility carte {
   background: var(--color-carte);
   border-radius: 20px;
   box-shadow: var(--shadow-carte);
+}
+
+/* Petite flèche sur les listes déroulantes sans bordure */
+select.champ-ligne {
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23535d6c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 20px;
 }

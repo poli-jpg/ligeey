@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Hors ligne" };
 // Page statique mise en cache par le service worker, affichée quand il n'y a pas de réseau.
 export default function HorsLigne() {
   return (
-    <main className="flex min-h-dvh flex-col justify-between bg-nuit px-6 pt-10 pb-12">
+    <main className="flex min-h-dvh flex-col justify-between bg-nuit px-6 pt-[calc(env(safe-area-inset-top)+24px)] pb-[calc(env(safe-area-inset-bottom)+24px)]">
       <Logo clair />
       <div className="flex flex-col gap-4">
         <div className="ruban h-3 w-24 rounded-full" aria-hidden />

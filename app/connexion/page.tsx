@@ -9,7 +9,7 @@ export default async function Connexion({ searchParams }: { searchParams: Promis
   const { suite } = await searchParams;
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="flex flex-col gap-10 rounded-b-[32px] bg-nuit px-5 pt-7 pb-10">
+      <header className="flex flex-col gap-10 rounded-b-[32px] bg-nuit px-5 pt-[calc(env(safe-area-inset-top)+16px)] pb-10">
         <div className="flex items-center justify-between">
           <Link href="/" aria-label="Retour à l'accueil" className="flex size-11 items-center justify-center rounded-full bg-white/10 text-white">
             <IconeRetour />

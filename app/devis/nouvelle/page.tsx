@@ -14,7 +14,7 @@ export default async function NouvelleDemande({ searchParams }: { searchParams: 
   return (
     <>
       <Entete titre="Nouvelle demande" retour="/devis" />
-      <main className="px-5 pt-2 pb-10">
+      <main className="px-4 pt-5 pb-[calc(env(safe-area-inset-bottom)+24px)]">
         <FormulaireDemande metiers={metiers} quartiers={quartiers} metierInitial={metier} quartierInitial={profil?.quartier} />
       </main>
     </>

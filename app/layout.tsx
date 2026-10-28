@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description:
     "Trouvez un maçon, un électricien, un plombier ou un peintre près de chez vous, au Sénégal.",
   applicationName: "Ligeey",
-  appleWebApp: { capable: true, title: "Ligeey", statusBarStyle: "black" },
+  appleWebApp: { capable: true, title: "Ligeey", statusBarStyle: "black-translucent" },
   formatDetection: { telephone: false },
   icons: {
     icon: [

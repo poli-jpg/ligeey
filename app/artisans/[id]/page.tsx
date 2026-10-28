@@ -69,7 +69,7 @@ export default async function ProfilArtisan({ params, searchParams }: Props) {
 
   return (
     <>
-      <div className="h-40 rounded-b-[32px] bg-nuit px-5 pt-7">
+      <div className="h-[calc(env(safe-area-inset-top)+160px)] rounded-b-[32px] bg-nuit px-4 pt-[calc(env(safe-area-inset-top)+12px)]">
         <Link href="/recherche" aria-label="Retour" className="flex size-11 items-center justify-center rounded-full bg-white/10 text-white">
           <IconeRetour />
         </Link>

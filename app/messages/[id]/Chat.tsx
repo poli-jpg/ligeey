@@ -135,7 +135,7 @@ export function Chat(props: Props) {
 
   return (
     <div className="flex h-dvh flex-col">
-      <header className="flex items-center gap-2.5 bg-nuit px-4 pt-6 pb-3 text-white">
+      <header className="flex shrink-0 items-center gap-2 bg-nuit px-2 pt-[calc(env(safe-area-inset-top)+8px)] pb-2 text-white">
         <Link href="/messages" aria-label="Retour aux messages" className="flex size-11 items-center justify-center rounded-full bg-white/10">
           <IconeRetour />
         </Link>
@@ -228,7 +228,7 @@ export function Chat(props: Props) {
             onChange={(e) => setTexte(e.target.value)}
             placeholder="Votre message…"
             autoComplete="off"
-            className="h-11 min-w-0 flex-1 rounded-full border border-trait bg-fond px-4 text-sm outline-none focus:border-nuit"
+            className="h-11 min-w-0 flex-1 rounded-full border border-trait bg-fond px-4 text-base outline-none focus:border-nuit"
           />
           <button type="submit" disabled={envoi || !texte.trim()} aria-label="Envoyer" className="flex size-11 shrink-0 items-center justify-center rounded-full bg-nuit text-white disabled:opacity-50">
             <IconeEnvoyer />

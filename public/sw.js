@@ -4,7 +4,7 @@
  * - Supabase et tout autre domaine : jamais interceptés.
  * Changer VERSION à chaque modification de ce fichier.
  */
-const VERSION = "ligeey-v1";
+const VERSION = "ligeey-v2";
 const CACHE_STATIQUE = `${VERSION}-statique`;
 const PAGE_HORS_LIGNE = "/hors-ligne";
 const A_PRECHARGER = [

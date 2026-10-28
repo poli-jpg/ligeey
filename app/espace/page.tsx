@@ -48,7 +48,7 @@ export default async function EspaceArtisan({ searchParams }: { searchParams: Pr
 
   return (
     <>
-      <header className="flex flex-col gap-4 bg-nuit px-5 pt-10 pb-5">
+      <header className="flex flex-col gap-4 rounded-b-[28px] bg-nuit px-5 pt-[calc(env(safe-area-inset-top)+20px)] pb-5">
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-0.5">
             <span className="text-sm text-slate-300">Bonjour {prenom},</span>
@@ -61,7 +61,7 @@ export default async function EspaceArtisan({ searchParams }: { searchParams: Pr
         <Disponibilite disponible={artisan.disponible} />
       </header>
 
-      <main className="flex flex-col gap-4 px-5 pt-4 pb-28">
+      <main className="flex flex-col gap-4 px-4 pt-4 pb-6">
         {artisan.verification !== "verifie" ? (
           <Link href="/espace/profil#verification" className="flex items-center justify-between gap-3 rounded-2xl border border-[#bfe3cc] bg-vert-clair p-3.5">
             <span className="text-sm font-bold text-green-900">

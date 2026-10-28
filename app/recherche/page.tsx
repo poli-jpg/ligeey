@@ -46,7 +46,7 @@ export default async function Recherche({ searchParams }: { searchParams: Promis
 
   return (
     <>
-      <header className="flex flex-col gap-4 rounded-b-[28px] bg-nuit px-5 pt-7 pb-5">
+      <header className="flex flex-col gap-4 rounded-b-[28px] bg-nuit px-4 pt-[calc(env(safe-area-inset-top)+12px)] pb-5">
         <div className="flex items-center gap-3">
           <Link href="/" aria-label="Retour" className="flex size-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-white">
             <IconeRetour />
@@ -89,7 +89,7 @@ export default async function Recherche({ searchParams }: { searchParams: Promis
         </div>
       </header>
 
-      <main className="flex flex-col gap-3 px-5 pt-5 pb-32">
+      <main className="flex flex-col gap-3 px-4 pt-5 pb-6">
         <p className="text-sm text-gris">
           <strong className="text-encre">
             {resultats.length} {metier ? metier.nom.toLowerCase() : "artisan"}
