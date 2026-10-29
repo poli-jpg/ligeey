@@ -38,6 +38,12 @@ async function allerApresConnexion(supabase: SupabaseClient, userId: string, sui
   redirect(complet ? suite : `/bienvenue?suite=${encodeURIComponent(suite)}`);
 }
 
+/** Le fournisseur SMS (Twilio…) a refusé l'envoi : identifiants faux, crédit épuisé, numéro non autorisé. */
+function smsNonEnvoye(error: { code?: string; message?: string } | null) {
+  return Boolean(error && (error.code === "sms_send_failed" || /sms|provider|twilio/i.test(error.message ?? "")));
+}
+const SMS_NON_ENVOYE = "Le SMS de confirmation n'a pas pu être envoyé. Vérifiez le numéro ou réessayez plus tard.";
+
 const NUMERO_INVALIDE = "Numéro invalide. Exemple : 77 123 45 67";
 const CODE_INVALIDE = "Le code contient 6 chiffres.";
 
@@ -76,6 +82,10 @@ export async function inscription(etat: EtatInscription, formData: FormData): Pr
       /already/i.test(error?.message ?? "") ||
       (data.user && data.user.identities?.length === 0);
     if (dejaInscrit) return { etape: "infos", saisie, erreur: "Ce numéro a déjà un compte. Connectez-vous ou utilisez « Mot de passe oublié »." };
+    if (smsNonEnvoye(error)) {
+      console.error("signUp (SMS)", error?.code, error?.message);
+      return { etape: "infos", saisie, erreur: SMS_NON_ENVOYE };
+    }
     if (error) {
       console.error("signUp", error.code, error.message);
       return { etape: "infos", saisie, erreur: "Inscription impossible pour le moment. Réessayez dans un instant." };
@@ -155,6 +165,10 @@ export async function reinitialiserMotDePasse(etat: EtatReinitialisation, formDa
     if (!telephone) return { etape: "telephone", saisie: { telephone: String(formData.get("telephone") ?? "") }, erreur: NUMERO_INVALIDE };
     // shouldCreateUser: false → cette page ne crée jamais de compte
     const { error } = await supabase.auth.signInWithOtp({ phone: telephone, options: { shouldCreateUser: false } });
+    if (smsNonEnvoye(error)) {
+      console.error("reinitialisation (SMS)", error?.code, error?.message);
+      return { etape: "telephone", erreur: SMS_NON_ENVOYE };
+    }
     if (error && error.code !== "otp_disabled" && !/signups not allowed|not found/i.test(error.message)) {
       console.error("reinitialisation", error.code, error.message);
       return { etape: "telephone", erreur: "Envoi impossible pour le moment. Réessayez dans une minute." };

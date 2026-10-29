@@ -114,6 +114,14 @@ Un SMS n'est donc envoyé qu'à l'inscription et en cas d'oubli. Les messages d'
 
 Code : `actions/auth.ts`, `components/ChampsAuth.tsx`, `components/EcranAuth.tsx`.
 
+## Créer des comptes de test (sans SMS)
+
+```bash
+npm run creer-compte -- 771234567 "Prénom Nom" motdepasse
+```
+
+Le compte est créé déjà confirmé (badge « Téléphone vérifié ») : le testeur se connecte sur `/connexion` avec ce numéro et ce mot de passe. Nécessite `SUPABASE_SECRET_KEY` dans `.env.local` (voir `.env.example`).
+
 ## Badges de confiance
 
 | Badge | Comment on l'obtient |
