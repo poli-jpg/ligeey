@@ -36,11 +36,22 @@ export async function getSession() {
   } = await supabase.auth.getUser();
   if (!user) return { supabase, user: null, profil: null };
 
-  const { data: profil } = await supabase
+  const { data: profil, error } = await supabase
     .from("profiles")
     .select("id, role, nom_complet, quartier, avatar_url, telephone_verifie")
     .eq("id", user.id)
     .maybeSingle();
+
+  // Base pas encore migrée (colonne telephone_verifie absente) : on lit le profil sans elle
+  if (error) {
+    console.error("getSession profil", error.code, error.message);
+    const { data: base } = await supabase
+      .from("profiles")
+      .select("id, role, nom_complet, quartier, avatar_url")
+      .eq("id", user.id)
+      .maybeSingle();
+    return { supabase, user, profil: base ? { ...base, telephone_verifie: false } : null };
+  }
 
   return { supabase, user, profil };
 }

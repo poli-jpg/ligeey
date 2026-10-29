@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { getSession } from "@/lib/supabase/server";
 import { masquerArtisan, traiterSignalement, traiterVerification } from "@/actions/mise-en-relation";
 import { RAISONS_SIGNALEMENT } from "@/lib/types";
@@ -21,7 +21,8 @@ type Verification = {
 export default async function Admin() {
   const { supabase, user, profil } = await getSession();
   if (!user) redirect("/connexion?suite=/admin");
-  if (profil?.role !== "admin") notFound();
+  // Compte non admin : retour à l'accueil plutôt qu'une page « introuvable »
+  if (profil?.role !== "admin") redirect("/");
 
   const [{ data }, { data: signalements }, { count: nbVerifies }] = await Promise.all([
     supabase

@@ -6,6 +6,7 @@ export default function PageIntrouvable() {
       <h1 className="font-titre text-2xl font-bold">Page introuvable</h1>
       <p className="text-gris">Ce lien n&apos;existe pas ou vous n&apos;y avez pas accès.</p>
       <Link href="/" className="bouton">Retour à l&apos;accueil</Link>
+      <Link href="/connexion" className="text-sm font-bold text-nuit underline underline-offset-4">Se connecter avec un autre compte</Link>
     </main>
   );
 }
