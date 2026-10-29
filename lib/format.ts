@@ -40,3 +40,6 @@ export function normaliserTelephone(saisie: string) {
   if (chiffres.length === 9) return "+221" + chiffres;
   return null;
 }
+
+/** Longueur minimale du mot de passe (à régler aussi dans Supabase › Authentication › Policies). */
+export const LONGUEUR_MIN_MOT_DE_PASSE = 8;

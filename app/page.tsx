@@ -34,8 +34,8 @@ export default async function Accueil() {
               </span>
             ) : null
           ) : (
-            <Link href="/connexion" className="flex h-10 items-center rounded-full bg-white px-4 text-[13px] font-bold text-encre">
-              Se connecter
+            <Link href="/inscription" className="flex h-10 items-center rounded-full bg-chantier px-4 text-[13px] font-extrabold text-encre">
+              Créer un compte
             </Link>
           )}
         </div>

@@ -102,6 +102,18 @@ Fichiers : `app/manifest.ts`, `public/sw.js` (changer `VERSION` quand on le modi
 
 Le service worker ne tourne qu'en production : pour le tester en local, `npm run build && npm start`.
 
+## Inscription et connexion
+
+Numéro de téléphone + mot de passe (8 caractères minimum) :
+
+- **Créer un compte** (`/inscription`) : nom, numéro, mot de passe → un code SMS confirme le numéro (badge « Téléphone vérifié ») → page Bienvenue (quartier, client ou artisan).
+- **Se connecter** (`/connexion`) : numéro + mot de passe, **sans SMS**.
+- **Mot de passe oublié** (`/mot-de-passe-oublie`) : code SMS puis nouveau mot de passe. Les comptes créés avant les mots de passe passent par ici une fois.
+
+Un SMS n'est donc envoyé qu'à l'inscription et en cas d'oubli. Les messages d'erreur ne révèlent jamais si un numéro est inscrit ou non (sauf à l'inscription, pour proposer de se connecter).
+
+Code : `actions/auth.ts`, `components/ChampsAuth.tsx`, `components/EcranAuth.tsx`.
+
 ## Badges de confiance
 
 | Badge | Comment on l'obtient |

@@ -6,7 +6,7 @@ import type { Quartier } from "@/lib/referentiels";
 import { BoutonEnvoi } from "@/components/BoutonEnvoi";
 import { Erreur } from "@/components/ui";
 
-export function FormulaireBienvenue({ quartiers, suite }: { quartiers: Quartier[]; suite: string }) {
+export function FormulaireBienvenue({ quartiers, suite, nomInitial }: { quartiers: Quartier[]; suite: string; nomInitial?: string }) {
   const [etat, action] = useActionState<EtatSimple, FormData>(terminerInscription, {});
 
   return (
@@ -15,7 +15,7 @@ export function FormulaireBienvenue({ quartiers, suite }: { quartiers: Quartier[
 
       <label className="flex flex-col gap-1.5">
         <span className="text-sm font-bold">Prénom et nom</span>
-        <input name="nom" required minLength={2} maxLength={60} autoComplete="name" className="champ" />
+        <input name="nom" required minLength={2} maxLength={60} autoComplete="name" defaultValue={nomInitial} className="champ" />
       </label>
 
       <label className="flex flex-col gap-1.5">
