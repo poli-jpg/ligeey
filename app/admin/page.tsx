@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/supabase/server";
 import { masquerArtisan, traiterSignalement, traiterVerification } from "@/actions/mise-en-relation";
+import { deconnexion } from "@/actions/auth";
 import { RAISONS_SIGNALEMENT } from "@/lib/types";
 import { BarreNav } from "@/components/BarreNav";
 import { BoutonEnvoi } from "@/components/BoutonEnvoi";
@@ -141,6 +142,9 @@ export default async function Admin() {
             );
           })}
         </section>
+        <form action={deconnexion} className="pt-2">
+          <BoutonEnvoi className="bouton-secondaire w-full min-h-[52px]" enCours="Déconnexion…">Se déconnecter</BoutonEnvoi>
+        </form>
       </main>
       <BarreNav role={profil.role} />
     </>
