@@ -43,6 +43,11 @@ export default async function ProfilArtisan({ params, searchParams }: Props) {
   const { merci, erreur } = await searchParams;
   const { supabase, artisan } = await chargerArtisan(id);
   if (!artisan) notFound();
+  // L'artisan qui regarde sa propre fiche : pas de « Contacter », mais « Modifier mon profil »
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const estMoi = user?.id === artisan.id;
 
   const nom = (artisan.profil as unknown as { nom_complet: string }).nom_complet;
   const telephoneVerifie = (artisan.profil as unknown as { telephone_verifie: boolean }).telephone_verifie;
@@ -117,6 +122,7 @@ export default async function ProfilArtisan({ params, searchParams }: Props) {
         </section>
 
         {merci ? <Pastille>Merci, votre avis est publié.</Pastille> : null}
+        {estMoi ? <Pastille ton="gris">C&apos;est votre fiche, telle que les clients la voient.</Pastille> : null}
         {erreur ? <Pastille ton="ambre">Impossible d&apos;ouvrir la conversation. Réessayez.</Pastille> : null}
 
         {artisan.bio || artisan.competences.length ? (
@@ -199,13 +205,13 @@ export default async function ProfilArtisan({ params, searchParams }: Props) {
             <Vide>Aucun avis pour l&apos;instant. Seuls les clients qui ont terminé une mission peuvent noter.</Vide>
           )}
         </section>
-        <Link
+        {estMoi ? null : <Link
           href={`/artisans/${artisan.id}/signaler`}
           className="flex items-center justify-center gap-2 py-2 text-[13px] font-semibold text-gris underline underline-offset-4"
         >
           <IconeDrapeau className="size-4" />
           Signaler ce profil
-        </Link>
+        </Link>}
       </main>
 
       <div className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md items-center gap-3 rounded-t-[24px] bg-carte px-5 pt-3.5 pb-[max(env(safe-area-inset-bottom),16px)] shadow-[0_-10px_30px_-18px_rgb(22_33_58/0.45)]">
@@ -213,13 +219,17 @@ export default async function ProfilArtisan({ params, searchParams }: Props) {
           <span className="text-xs text-gris">Déplacement dès</span>
           <span className="font-titre text-lg font-extrabold">{fcfa(artisan.tarif_base)}</span>
         </div>
-        <form action={contacterArtisan}>
-          <input type="hidden" name="artisan_id" value={artisan.id} />
-          <BoutonEnvoi className="bouton gap-2" enCours="Ouverture…">
-            <IconeMessage className="size-5" />
-            Contacter
-          </BoutonEnvoi>
-        </form>
+        {estMoi ? (
+          <Link href="/espace/profil" className="bouton">Modifier mon profil</Link>
+        ) : (
+          <form action={contacterArtisan}>
+            <input type="hidden" name="artisan_id" value={artisan.id} />
+            <BoutonEnvoi className="bouton gap-2" enCours="Ouverture…">
+              <IconeMessage className="size-5" />
+              Contacter
+            </BoutonEnvoi>
+          </form>
+        )}
       </div>
     </>
   );

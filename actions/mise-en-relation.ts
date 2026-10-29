@@ -17,6 +17,8 @@ async function utilisateur(suite = "/") {
 export async function contacterArtisan(formData: FormData) {
   const artisanId = String(formData.get("artisan_id"));
   const { supabase, user } = await utilisateur(`/artisans/${artisanId}`);
+  // On ne peut pas s'écrire à soi-même (contrainte pas_soi_meme)
+  if (user.id === artisanId) redirect("/espace/profil");
 
   const { data: existante } = await supabase
     .from("conversations")
@@ -34,7 +36,10 @@ export async function contacterArtisan(formData: FormData) {
     .select("id")
     .single();
 
-  if (error || !data) redirect(`/artisans/${artisanId}?erreur=contact`);
+  if (error || !data) {
+    console.error("contacterArtisan", error?.code, error?.message);
+    redirect(`/artisans/${artisanId}?erreur=contact`);
+  }
   redirect(`/messages/${data.id}`);
 }
 
