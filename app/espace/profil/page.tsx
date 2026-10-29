@@ -92,7 +92,7 @@ export default async function ProfilArtisanEdition({ searchParams }: { searchPar
           <button className="bouton-secondaire w-full">Se déconnecter</button>
         </form>
       </main>
-      {fiche ? <BarreNav role="artisan" /> : null}
+      {fiche ? <BarreNav role={profil?.role} /> : null}
     </>
   );
 }

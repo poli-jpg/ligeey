@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Role } from "@/lib/types";
-import { IconeAccueil, IconeCompte, IconeDevis, IconeMessage, IconeRecherche, IconeTableau } from "./Icones";
+import { IconeAccueil, IconeBouclier, IconeCompte, IconeDevis, IconeMessage, IconeRecherche, IconeTableau } from "./Icones";
 
 const NAV_CLIENT = [
   { href: "/", label: "Accueil", Icone: IconeAccueil },
@@ -19,10 +19,18 @@ const NAV_ARTISAN = [
   { href: "/espace/profil", label: "Profil", Icone: IconeCompte },
 ];
 
+// Compte admin : accès direct à la validation des badges
+const NAV_ADMIN = [
+  { href: "/", label: "Accueil", Icone: IconeAccueil },
+  { href: "/messages", label: "Messages", Icone: IconeMessage },
+  { href: "/espace", label: "Tableau", Icone: IconeTableau },
+  { href: "/admin", label: "Admin", Icone: IconeBouclier },
+];
+
 /** Onglets du bas façon WhatsApp : collés au bord, pastille jaune derrière l'icône active. */
 export function BarreNav({ role }: { role?: Role | null }) {
   const chemin = usePathname();
-  const liens = role === "artisan" ? NAV_ARTISAN : NAV_CLIENT;
+  const liens = role === "admin" ? NAV_ADMIN : role === "artisan" ? NAV_ARTISAN : NAV_CLIENT;
   const actif = liens
     .filter(({ href }) => (href === "/" ? chemin === "/" : chemin === href || chemin.startsWith(href + "/")))
     .sort((a, b) => b.href.length - a.href.length)[0]?.href;

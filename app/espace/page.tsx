@@ -113,7 +113,7 @@ export default async function EspaceArtisan({ searchParams }: { searchParams: Pr
           );
         })}
       </main>
-      <BarreNav role="artisan" />
+      <BarreNav role={profil?.role} />
     </>
   );
 }
