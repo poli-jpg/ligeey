@@ -1,8 +1,8 @@
 import Link from "next/link";
-import type { ArtisanRecherche } from "@/lib/types";
+import { estRecommande, type ArtisanRecherche } from "@/lib/types";
 import { fcfa } from "@/lib/format";
 import { IconeLieu, IconeMetier, IconeOutil } from "./Icones";
-import { Avatar, BadgeVerifie, Note } from "./ui";
+import { Avatar, BadgeNom, Note } from "./ui";
 
 export function CarteArtisan({ a }: { a: ArtisanRecherche }) {
   return (
@@ -17,11 +17,14 @@ export function CarteArtisan({ a }: { a: ArtisanRecherche }) {
         <span className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="flex items-center gap-1.5 text-base font-extrabold">
             <span className="truncate">{a.nom_complet}</span>
-            {a.verifie ? <BadgeVerifie className="size-[18px] shrink-0" /> : null}
+            <BadgeNom identite={a.verifie} telephone={a.telephone_verifie} className="size-[18px] shrink-0" />
           </span>
           <span className="flex items-center gap-1.5 text-[13px] font-semibold text-gris">
-            <IconeMetier slug={a.metier} className="size-4" />
+            <IconeMetier slug={a.metier} className="size-4 shrink-0" />
             {a.metier_nom}
+            {estRecommande(a.note_moyenne, a.nb_avis) ? (
+              <span className="ml-1 rounded-full bg-chantier-clair px-2 py-0.5 text-[11px] font-bold text-chantier-fonce">Recommandé</span>
+            ) : null}
           </span>
         </span>
         <Note valeur={a.note_moyenne} nbAvis={a.nb_avis} />

@@ -38,7 +38,7 @@ export async function getSession() {
 
   const { data: profil } = await supabase
     .from("profiles")
-    .select("id, role, nom_complet, quartier, avatar_url")
+    .select("id, role, nom_complet, quartier, avatar_url, telephone_verifie")
     .eq("id", user.id)
     .maybeSingle();
 

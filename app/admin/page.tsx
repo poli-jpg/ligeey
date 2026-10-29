@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/supabase/server";
-import { traiterVerification } from "@/actions/mise-en-relation";
+import { masquerArtisan, traiterSignalement, traiterVerification } from "@/actions/mise-en-relation";
+import { RAISONS_SIGNALEMENT } from "@/lib/types";
 import { BarreNav } from "@/components/BarreNav";
 import { BoutonEnvoi } from "@/components/BoutonEnvoi";
 import { IconeMetier } from "@/components/Icones";
-import { Avatar, Entete, Groupe, Vide } from "@/components/ui";
+import { Avatar, Entete, Vide } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Administration", robots: { index: false } };
 
@@ -28,7 +29,12 @@ export default async function Admin() {
       .select("id, document_path, created_at, artisan:artisans(id, metier, profil:profiles!artisans_id_fkey(nom_complet))")
       .eq("statut", "en_attente")
       .order("created_at"),
-    supabase.from("signalements").select("id, motif, created_at").eq("traite", false).order("created_at").limit(50),
+    supabase
+      .from("signalements")
+      .select("id, raison, motif, created_at, artisan:artisans(id, masque, profil:profiles!artisans_id_fkey(nom_complet))")
+      .eq("traite", false)
+      .order("created_at")
+      .limit(50),
     supabase.from("artisans").select("id", { count: "exact", head: true }).eq("verification", "verifie"),
   ]);
   const verifications = (data ?? []) as unknown as Verification[];
@@ -94,15 +100,46 @@ export default async function Admin() {
           })}
         </section>
 
-        <Groupe titre={`Signalements (${signalements?.length ?? 0})`}>
-          {signalements?.length ? (
-            signalements.map((s) => (
-              <p key={s.id} className="px-4 py-3 text-sm">{s.motif}</p>
-            ))
-          ) : (
-            <p className="px-4 py-4 text-sm text-gris">Aucun signalement.</p>
-          )}
-        </Groupe>
+        <section className="flex flex-col gap-3">
+          <h2 className="px-1 text-[13px] font-bold text-gris">Signalements à examiner ({signalements?.length ?? 0})</h2>
+          {!signalements?.length ? <Vide>Aucun signalement en attente.</Vide> : null}
+          {(signalements ?? []).map((sg) => {
+            const a = sg.artisan as unknown as { id: string; masque: boolean; profil: { nom_complet: string } } | null;
+            const raison = RAISONS_SIGNALEMENT.find((r) => r.v === sg.raison)?.label ?? "Autre raison";
+            return (
+              <article key={sg.id} className="carte flex flex-col gap-3 p-4">
+                <div className="flex items-start justify-between gap-2">
+                  {a ? (
+                    <Link href={`/artisans/${a.id}`} className="text-base font-extrabold">{a.profil.nom_complet}</Link>
+                  ) : (
+                    <span className="text-base font-extrabold">Profil supprimé</span>
+                  )}
+                  {a?.masque ? <span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-800">Masqué</span> : null}
+                </div>
+                <p className="text-sm font-bold text-ambre">{raison}</p>
+                {sg.motif ? <p className="text-sm leading-relaxed">{sg.motif}</p> : null}
+                <p className="text-xs text-gris">
+                  Reçu le {new Date(sg.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {a ? (
+                    <form action={masquerArtisan}>
+                      <input type="hidden" name="artisan_id" value={a.id} />
+                      <input type="hidden" name="masquer" value={a.masque ? "0" : "1"} />
+                      <BoutonEnvoi className="bouton-secondaire w-full" enCours="…">
+                        {a.masque ? "Réafficher le profil" : "Masquer le profil"}
+                      </BoutonEnvoi>
+                    </form>
+                  ) : <span />}
+                  <form action={traiterSignalement}>
+                    <input type="hidden" name="id" value={sg.id} />
+                    <BoutonEnvoi className="bouton w-full" enCours="…">Marquer traité</BoutonEnvoi>
+                  </form>
+                </div>
+              </article>
+            );
+          })}
+        </section>
       </main>
       <BarreNav role={profil.role} />
     </>

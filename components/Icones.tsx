@@ -58,6 +58,15 @@ export const IconeVerifie = ({ className = "size-4" }: P) => (
     <path d="M8 12.3l2.7 2.7L16 9.7" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
+export const IconeTelephoneVerifie = ({ className = "size-4" }: P) => (
+  <svg viewBox="0 0 24 24" className={className} role="img" aria-label="Téléphone vérifié">
+    <circle cx="12" cy="12" r="10" fill="#64748b" />
+    <path d="M8 12.3l2.7 2.7L16 9.7" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+export const IconeDrapeau = ({ className = "size-4" }: P) => (
+  <svg {...base} className={className}><path d="M5 21V4M5 4h11l-2 4 2 4H5" /></svg>
+);
 export const IconeEtoile = ({ className = "size-4", pleine = true }: P & { pleine?: boolean }) => (
   <svg viewBox="0 0 24 24" className={className} aria-hidden fill={pleine ? "#f5b70f" : "none"} stroke={pleine ? "#d39a00" : "#9aa3af"} strokeWidth="1.5" strokeLinejoin="round">
     <path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z" />

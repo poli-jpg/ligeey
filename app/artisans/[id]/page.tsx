@@ -7,8 +7,9 @@ import { fcfa, note } from "@/lib/format";
 import { JOURS } from "@/lib/referentiels";
 import { contacterArtisan } from "@/actions/mise-en-relation";
 import { BoutonEnvoi } from "@/components/BoutonEnvoi";
-import { IconeEtoile, IconeLieu, IconeMessage, IconeMetier, IconeRetour } from "@/components/Icones";
-import { Avatar, BadgeVerifie, Pastille, Titre2, Vide } from "@/components/ui";
+import { IconeDrapeau, IconeEtoile, IconeLieu, IconeMessage, IconeMetier, IconeRetour } from "@/components/Icones";
+import { estRecommande } from "@/lib/types";
+import { Avatar, BadgeNom, BadgesConfiance, Pastille, Titre2, Vide } from "@/components/ui";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ merci?: string; erreur?: string }> };
 
@@ -19,7 +20,7 @@ async function chargerArtisan(id: string) {
     .select(
       `id, slug_metier:metier, competences, bio, annees_experience, tarif_base, zones, jours_dispo, disponible,
        verification, note_moyenne, nb_avis, nb_missions,
-       profil:profiles!artisans_id_fkey(nom_complet),
+       profil:profiles!artisans_id_fkey(nom_complet, telephone_verifie),
        metier:metiers(nom),
        quartier:quartiers(nom)`,
     )
@@ -44,6 +45,7 @@ export default async function ProfilArtisan({ params, searchParams }: Props) {
   if (!artisan) notFound();
 
   const nom = (artisan.profil as unknown as { nom_complet: string }).nom_complet;
+  const telephoneVerifie = (artisan.profil as unknown as { telephone_verifie: boolean }).telephone_verifie;
   const metier = (artisan.metier as unknown as { nom: string }).nom;
   const quartier = (artisan.quartier as unknown as { nom: string } | null)?.nom;
 
@@ -82,7 +84,7 @@ export default async function ProfilArtisan({ params, searchParams }: Props) {
           </span>
           <div className="flex flex-col items-center gap-1">
             <h1 className="flex items-center gap-2 font-titre text-[26px] leading-tight font-extrabold tracking-tight">
-              {nom} {artisan.verification === "verifie" ? <BadgeVerifie className="size-6" /> : null}
+              {nom} <BadgeNom identite={artisan.verification === "verifie"} telephone={telephoneVerifie} className="size-6" />
             </h1>
             <p className="flex items-center gap-1.5 text-[15px] font-semibold text-gris">
               <IconeMetier slug={artisan.slug_metier} className="size-[18px]" />
@@ -95,6 +97,11 @@ export default async function ProfilArtisan({ params, searchParams }: Props) {
               </p>
             ) : null}
           </div>
+          <BadgesConfiance
+            identite={artisan.verification === "verifie"}
+            telephone={telephoneVerifie}
+            recommande={estRecommande(artisan.note_moyenne, artisan.nb_avis)}
+          />
           <Pastille ton={artisan.disponible ? "vert" : "ambre"}>
             {artisan.disponible ? "Disponible pour un chantier" : "Occupé en ce moment"}
           </Pastille>
@@ -192,6 +199,13 @@ export default async function ProfilArtisan({ params, searchParams }: Props) {
             <Vide>Aucun avis pour l&apos;instant. Seuls les clients qui ont terminé une mission peuvent noter.</Vide>
           )}
         </section>
+        <Link
+          href={`/artisans/${artisan.id}/signaler`}
+          className="flex items-center justify-center gap-2 py-2 text-[13px] font-semibold text-gris underline underline-offset-4"
+        >
+          <IconeDrapeau className="size-4" />
+          Signaler ce profil
+        </Link>
       </main>
 
       <div className="fixed inset-x-0 bottom-0 z-20 mx-auto flex max-w-md items-center gap-3 rounded-t-[24px] bg-carte px-5 pt-3.5 pb-[max(env(safe-area-inset-bottom),16px)] shadow-[0_-10px_30px_-18px_rgb(22_33_58/0.45)]">

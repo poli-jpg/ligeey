@@ -41,7 +41,7 @@ export default async function Recherche({ searchParams }: { searchParams: Promis
   const filtres = [
     { cle: "dispo" as const, label: "Disponible", actif: p.dispo === "1" },
     { cle: "note" as const, label: "Note 4+", actif: p.note === "4", valeur: "4" },
-    { cle: "verifie" as const, label: "Vérifié", actif: p.verifie === "1" },
+    { cle: "verifie" as const, label: "Identité vérifiée", actif: p.verifie === "1" },
   ];
 
   return (

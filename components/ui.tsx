@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { initiales, note } from "@/lib/format";
-import { IconeEtoile, IconeRetour, IconeVerifie } from "./Icones";
+import { IconeEtoile, IconeRetour, IconeTelephoneVerifie, IconeVerifie } from "./Icones";
 
 // Couleur d'avatar stable selon le nom : on reconnaît les gens d'un coup d'œil
 const TEINTES = [
@@ -40,6 +40,37 @@ export function Note({ valeur, nbAvis }: { valeur: number; nbAvis?: number }) {
 
 export function BadgeVerifie({ className }: { className?: string }) {
   return <IconeVerifie className={className} />;
+}
+
+/** Petit badge à côté d'un nom : vert si identité vérifiée, sinon gris si téléphone vérifié. */
+export function BadgeNom({ identite, telephone, className }: { identite: boolean; telephone: boolean; className?: string }) {
+  if (identite) return <IconeVerifie className={className} />;
+  if (telephone) return <IconeTelephoneVerifie className={className} />;
+  return null;
+}
+
+/** Les badges de confiance en toutes lettres (profil public). */
+export function BadgesConfiance({ identite, telephone, recommande }: { identite: boolean; telephone: boolean; recommande: boolean }) {
+  if (!identite && !telephone && !recommande) return null;
+  return (
+    <ul className="flex flex-wrap justify-center gap-1.5" aria-label="Badges de confiance">
+      {identite ? (
+        <li className="flex items-center gap-1.5 rounded-full bg-vert-clair py-1 pr-3 pl-1.5 text-xs font-bold text-vert">
+          <IconeVerifie className="size-4" /> Identité vérifiée
+        </li>
+      ) : null}
+      {telephone ? (
+        <li className="flex items-center gap-1.5 rounded-full bg-slate-100 py-1 pr-3 pl-1.5 text-xs font-bold text-slate-700">
+          <IconeTelephoneVerifie className="size-4" /> Téléphone vérifié
+        </li>
+      ) : null}
+      {recommande ? (
+        <li className="flex items-center gap-1.5 rounded-full bg-chantier-clair py-1 pr-3 pl-1.5 text-xs font-bold text-chantier-fonce">
+          <IconeEtoile className="size-4" /> Recommandé
+        </li>
+      ) : null}
+    </ul>
+  );
 }
 
 export function Pastille({

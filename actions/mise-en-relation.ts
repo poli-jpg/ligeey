@@ -145,3 +145,51 @@ export async function traiterVerification(formData: FormData) {
   if (error) console.error("traiterVerification", error.message);
   revalidatePath("/admin");
 }
+
+export type EtatSignalement = { erreur?: string; ok?: boolean };
+
+const RAISONS = ["faux_profil", "arnaque", "comportement", "travail_bacle", "autre"];
+
+/** Un utilisateur signale un profil d'artisan (visible uniquement par l'admin). */
+export async function signalerArtisan(_: EtatSignalement, formData: FormData): Promise<EtatSignalement> {
+  const artisanId = String(formData.get("artisan_id"));
+  const { supabase, user } = await utilisateur(`/artisans/${artisanId}/signaler`);
+  const raison = String(formData.get("raison") ?? "");
+  if (!RAISONS.includes(raison)) return { erreur: "Choisissez le problème rencontré." };
+
+  const { error } = await supabase.from("signalements").insert({
+    auteur_id: user.id,
+    artisan_id: artisanId,
+    raison,
+    motif: String(formData.get("motif") ?? "").trim() || null,
+  });
+
+  if (error) {
+    // 23505 : un signalement de cette personne sur ce profil est déjà en cours d'examen
+    if (error.code === "23505") return { ok: true };
+    console.error("signalerArtisan", error.message);
+    return { erreur: "Envoi impossible. Réessayez." };
+  }
+  return { ok: true };
+}
+
+/** Admin : signalement traité. */
+export async function traiterSignalement(formData: FormData) {
+  const { supabase } = await utilisateur("/admin");
+  const { error } = await supabase.rpc("traiter_signalement", { p_signalement: String(formData.get("id")) });
+  if (error) console.error("traiterSignalement", error.message);
+  revalidatePath("/admin");
+}
+
+/** Admin : masque ou réaffiche un profil d'artisan dans la recherche. */
+export async function masquerArtisan(formData: FormData) {
+  const { supabase } = await utilisateur("/admin");
+  const artisanId = String(formData.get("artisan_id"));
+  const { error } = await supabase.rpc("masquer_artisan", {
+    p_artisan: artisanId,
+    p_masquer: formData.get("masquer") === "1",
+  });
+  if (error) console.error("masquerArtisan", error.message);
+  revalidatePath("/admin");
+  revalidatePath(`/artisans/${artisanId}`);
+}

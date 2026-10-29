@@ -65,7 +65,7 @@ export default async function EspaceArtisan({ searchParams }: { searchParams: Pr
         {artisan.verification !== "verifie" ? (
           <Link href="/espace/profil#verification" className="flex items-center justify-between gap-3 rounded-2xl border border-[#bfe3cc] bg-vert-clair p-3.5">
             <span className="text-sm font-bold text-green-900">
-              {artisan.verification === "en_attente" ? "Vérification en cours…" : "Obtenez le badge Vérifié"}
+              {artisan.verification === "en_attente" ? "Vérification de votre identité en cours…" : "Passez au badge vert « Identité vérifiée »"}
             </span>
             <span className="text-[13px] font-semibold text-vert">{artisan.verification === "en_attente" ? "" : "Commencer"}</span>
           </Link>

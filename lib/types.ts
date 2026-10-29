@@ -13,6 +13,7 @@ export type Profil = {
   nom_complet: string;
   quartier: string | null;
   avatar_url: string | null;
+  telephone_verifie?: boolean;
 };
 
 export type ArtisanRecherche = {
@@ -28,6 +29,7 @@ export type ArtisanRecherche = {
   nb_avis: number;
   disponible: boolean;
   verifie: boolean;
+  telephone_verifie: boolean;
   distance_km: number | null;
 };
 
@@ -54,3 +56,17 @@ export type Message = {
   offre_id: string | null;
   created_at: string;
 };
+
+/** Badge « Recommandé » : calculé à partir des avis, jamais attribué à la main. */
+export const SEUIL_RECOMMANDE = { note: 4.5, avis: 10 };
+export function estRecommande(note: number, nbAvis: number) {
+  return nbAvis >= SEUIL_RECOMMANDE.avis && note >= SEUIL_RECOMMANDE.note;
+}
+
+export const RAISONS_SIGNALEMENT = [
+  { v: "faux_profil", label: "Faux profil ou fausse identité" },
+  { v: "arnaque", label: "Arnaque ou demande d'argent suspecte" },
+  { v: "comportement", label: "Comportement irrespectueux ou menaçant" },
+  { v: "travail_bacle", label: "Travail bâclé ou abandonné" },
+  { v: "autre", label: "Autre raison" },
+] as const;

@@ -102,6 +102,18 @@ Fichiers : `app/manifest.ts`, `public/sw.js` (changer `VERSION` quand on le modi
 
 Le service worker ne tourne qu'en production : pour le tester en local, `npm run build && npm start`.
 
+## Badges de confiance
+
+| Badge | Comment on l'obtient |
+|---|---|
+| Téléphone vérifié (gris) | Automatique quand le code SMS est validé (`profiles.telephone_verifie`, trigger sur `auth.users`) |
+| Identité vérifiée (vert) | Pièce d'identité envoyée par l'artisan puis validée par un admin dans `/admin` |
+| Recommandé (jaune) | Calculé : au moins 10 avis et une note de 4,5 ou plus (`lib/types.ts`, `SEUIL_RECOMMANDE`) |
+
+## Signalements
+
+Sur chaque profil : « Signaler ce profil » (raison + détails). Les signalements ne sont visibles que par l'admin, qui peut **masquer le profil** (il disparaît de la recherche) et **marquer le signalement traité**.
+
 ## Déployer sur Vercel
 
 1. Pousse le dépôt sur GitHub, puis importe-le dans Vercel.
@@ -113,7 +125,6 @@ Le service worker ne tourne qu'en production : pour le tester en local, `npm run
 - [ ] Messages vocaux dans le chat (MediaRecorder, le bucket `messages` accepte déjà l'audio)
 - [ ] Photos jointes à une demande de devis (colonne `demandes.photos` prête)
 - [ ] Notifications : nouvelle demande pour l'artisan, nouvelle offre pour le client (Web Push ou SMS)
-- [ ] Bouton « Signaler » sur les profils et messages (table `signalements` prête)
 - [ ] Géolocalisation GPS en option, en plus du quartier
 - [ ] Paiement d'acompte Wave / Orange Money
 - [ ] Types TypeScript générés : `npx supabase gen types typescript --linked > lib/database.types.ts`
