@@ -43,3 +43,24 @@ export function normaliserTelephone(saisie: string) {
 
 /** Longueur minimale du mot de passe (à régler aussi dans Supabase › Authentication › Policies). */
 export const LONGUEUR_MIN_MOT_DE_PASSE = 8;
+
+/**
+ * Les routes de Dakar font des détours (presqu'île, autoroute, Patte d'Oie…) :
+ * on estime la distance par la route à partir de la ligne droite entre les
+ * centres des quartiers, avec un ratio de détour courant en ville (≈ 1,3 à 1,4).
+ * À ajuster si les retours des clients montrent un écart.
+ */
+export const DETOUR_ROUTE = 1.35;
+
+/** Distance entre deux quartiers, telle qu'on l'affiche au client. */
+export function distance(km: number | string | null | undefined) {
+  if (km == null) return null;
+  const ligneDroite = Number(km);
+  if (!Number.isFinite(ligneDroite)) return null;
+  // Même quartier : positions identiques (centre du quartier)
+  if (ligneDroite < 0.5) return "Même quartier";
+  const route = ligneDroite * DETOUR_ROUTE;
+  // Moins de 10 km : à 0,5 km près ; au-delà, au km près
+  const arrondi = route < 10 ? Math.max(1, Math.round(route * 2) / 2) : Math.round(route);
+  return `≈ ${arrondi.toLocaleString("fr-FR")} km`;
+}

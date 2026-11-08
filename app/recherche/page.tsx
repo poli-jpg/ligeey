@@ -16,7 +16,8 @@ export default async function Recherche({ searchParams }: { searchParams: Promis
   const p = await searchParams;
   const [{ supabase, profil }, { metiers, quartiers }] = await Promise.all([getSession(), chargerReferentiels()]);
 
-  const quartier = p.quartier ?? profil?.quartier ?? "";
+  // « partout » = choix explicite de ne filtrer sur aucun quartier (sinon on retombe sur celui du profil)
+  const quartier = p.quartier === "partout" ? "" : (p.quartier ?? profil?.quartier ?? "");
   const metier = metiers.find((m) => m.slug === p.metier);
   const nomQuartier = quartiers.find((q) => q.slug === quartier)?.nom;
 
@@ -32,7 +33,7 @@ export default async function Recherche({ searchParams }: { searchParams: Promis
   // Construit le lien d'un filtre en conservant les autres
   const lien = (cle: keyof Params, valeur: string | null) => {
     const q = new URLSearchParams();
-    const tous = { ...p, quartier: quartier || undefined, [cle]: valeur ?? undefined };
+    const tous = { ...p, quartier: quartier || "partout", [cle]: valeur ?? undefined };
     Object.entries(tous).forEach(([k, v]) => v && q.set(k, v));
     return `/recherche?${q.toString()}`;
   };
@@ -63,8 +64,8 @@ export default async function Recherche({ searchParams }: { searchParams: Promis
               ))}
             </select>
             <label className="sr-only" htmlFor="quartier">Quartier</label>
-            <select id="quartier" name="quartier" defaultValue={quartier} className="champ min-h-12 w-[42%] border-0 bg-fond font-semibold">
-              <option value="">Partout</option>
+            <select id="quartier" name="quartier" defaultValue={quartier || "partout"} className="champ min-h-12 w-[42%] border-0 bg-fond font-semibold">
+              <option value="partout">Partout</option>
               {quartiers.map((q) => (
                 <option key={q.slug} value={q.slug}>{q.nom}</option>
               ))}
@@ -94,7 +95,7 @@ export default async function Recherche({ searchParams }: { searchParams: Promis
             {resultats.length} {metier ? metier.nom.toLowerCase() : "artisan"}
             {resultats.length > 1 ? "s" : ""}
           </strong>
-          {nomQuartier ? ` autour de ${nomQuartier}` : ""}
+          {nomQuartier ? `, les plus proches de ${nomQuartier} d'abord` : ""}
         </p>
         {error ? <Vide>La recherche est indisponible pour le moment.</Vide> : null}
         {!error && resultats.length === 0 ? (

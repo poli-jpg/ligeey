@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { estRecommande, type ArtisanRecherche } from "@/lib/types";
-import { fcfa } from "@/lib/format";
+import { distance, fcfa } from "@/lib/format";
 import { IconeLieu, IconeMetier, IconeOutil } from "./Icones";
 import { Avatar, BadgeNom, Note } from "./ui";
 
@@ -31,8 +31,11 @@ export function CarteArtisan({ a }: { a: ArtisanRecherche }) {
       </span>
 
       <span className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-gris">
-        {a.distance_km != null ? (
-          <span className="flex items-center gap-1"><IconeLieu className="size-3.5" />{a.distance_km.toLocaleString("fr-FR")} km</span>
+        {distance(a.distance_km) ? (
+          <span className="flex items-center gap-1" title="Distance estimée par la route depuis le quartier choisi">
+            <IconeLieu className="size-3.5" />
+            {distance(a.distance_km)}
+          </span>
         ) : null}
         {a.annees_experience ? (
           <span className="flex items-center gap-1"><IconeOutil className="size-3.5" />{a.annees_experience} ans d&apos;expérience</span>
