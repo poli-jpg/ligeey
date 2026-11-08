@@ -14,8 +14,7 @@ type Params = { metier?: string; quartier?: string; note?: string; dispo?: strin
 
 export default async function Recherche({ searchParams }: { searchParams: Promise<Params> }) {
   const p = await searchParams;
-  const { supabase, profil } = await getSession();
-  const { metiers, quartiers } = await chargerReferentiels(supabase);
+  const [{ supabase, profil }, { metiers, quartiers }] = await Promise.all([getSession(), chargerReferentiels()]);
 
   const quartier = p.quartier ?? profil?.quartier ?? "";
   const metier = metiers.find((m) => m.slug === p.metier);

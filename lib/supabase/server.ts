@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
@@ -28,12 +29,22 @@ export async function createClient() {
   );
 }
 
-/** Renvoie l'utilisateur connecté (ou null) et son profil. */
-export async function getSession() {
+/**
+ * Utilisateur connecté (ou null), lu depuis le jeton de session.
+ * getClaims() vérifie la signature du jeton sur place (clés asymétriques) : pas
+ * d'aller-retour vers Supabase Auth comme avec getUser(). Mis en cache pour la
+ * durée de la requête : plusieurs appels dans une même page = un seul calcul.
+ */
+export const getUtilisateur = cache(async () => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data } = await supabase.auth.getClaims();
+  const id = data?.claims?.sub;
+  return { supabase, user: id ? { id } : null };
+});
+
+/** Renvoie l'utilisateur connecté (ou null) et son profil. */
+export const getSession = cache(async () => {
+  const { supabase, user } = await getUtilisateur();
   if (!user) return { supabase, user: null, profil: null };
 
   const { data: profil, error } = await supabase
@@ -54,4 +65,4 @@ export async function getSession() {
   }
 
   return { supabase, user, profil };
-}
+});

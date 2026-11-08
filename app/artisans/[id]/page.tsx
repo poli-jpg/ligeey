@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getUtilisateur } from "@/lib/supabase/server";
 import { fcfa, note } from "@/lib/format";
 import { JOURS } from "@/lib/referentiels";
 import { contacterArtisan } from "@/actions/mise-en-relation";
@@ -13,7 +14,8 @@ import { Avatar, BadgeNom, BadgesConfiance, Pastille, Titre2, Vide } from "@/com
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ merci?: string; erreur?: string }> };
 
-async function chargerArtisan(id: string) {
+// Mis en cache pour la requête : generateMetadata et la page partagent la même lecture
+const chargerArtisan = cache(async (id: string) => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("artisans")
@@ -27,7 +29,7 @@ async function chargerArtisan(id: string) {
     .eq("id", id)
     .maybeSingle();
   return { supabase, artisan: data };
-}
+});
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
@@ -41,12 +43,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProfilArtisan({ params, searchParams }: Props) {
   const { id } = await params;
   const { merci, erreur } = await searchParams;
-  const { supabase, artisan } = await chargerArtisan(id);
+  const [{ supabase, artisan }, { user }] = await Promise.all([chargerArtisan(id), getUtilisateur()]);
   if (!artisan) notFound();
   // L'artisan qui regarde sa propre fiche : pas de « Contacter », mais « Modifier mon profil »
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
   const estMoi = user?.id === artisan.id;
 
   const nom = (artisan.profil as unknown as { nom_complet: string }).nom_complet;

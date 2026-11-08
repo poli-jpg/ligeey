@@ -8,8 +8,7 @@ export const metadata: Metadata = { title: "Bienvenue" };
 
 export default async function Bienvenue({ searchParams }: { searchParams: Promise<{ suite?: string }> }) {
   const { suite } = await searchParams;
-  const { supabase, profil } = await getSession();
-  const { quartiers } = await chargerReferentiels(supabase);
+  const [{ profil }, { quartiers }] = await Promise.all([getSession(), chargerReferentiels()]);
 
   return (
     <div className="flex min-h-dvh flex-col">

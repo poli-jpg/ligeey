@@ -27,10 +27,11 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // Ne rien mettre entre createServerClient et getUser (recommandation Supabase).
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Ne rien mettre entre createServerClient et getClaims (recommandation Supabase).
+  // getClaims rafraîchit la session si besoin et vérifie le jeton sur place,
+  // sans appel réseau à Supabase Auth à chaque page (contrairement à getUser).
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims?.sub ?? null;
 
   const { pathname } = request.nextUrl;
   const protegee = ROUTES_PROTEGEES.some((r) => pathname === r || pathname.startsWith(r + "/"));

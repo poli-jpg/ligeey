@@ -21,6 +21,8 @@ type Props = {
   offresInitiales: Offre[];
   offresNotees: string[];
   ouvrirOffre: boolean;
+  /** Liens signés déjà prêts pour les photos chargées avec la page */
+  photos: Record<string, string>;
 };
 
 const LIBELLE_STATUT: Record<StatutOffre, { texte: string; ton: "vert" | "ambre" | "chantier" | "gris" }> = {
@@ -190,7 +192,7 @@ export function Chat(props: Props) {
           }
           return (
             <div key={m.id} className={`flex max-w-[78%] flex-col gap-1 ${deMoi ? "self-end items-end" : "self-start"}`}>
-              {m.type === "image" && m.media_path ? <ImageChat chemin={m.media_path} /> : null}
+              {m.type === "image" && m.media_path ? <ImageChat chemin={m.media_path} lien={props.photos[m.media_path]} /> : null}
               {m.contenu ? (
                 <p
                   className={`px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
@@ -239,14 +241,16 @@ export function Chat(props: Props) {
   );
 }
 
-function ImageChat({ chemin }: { chemin: string }) {
-  const [url, setUrl] = useState<string | null>(null);
+function ImageChat({ chemin, lien }: { chemin: string; lien?: string }) {
+  const [url, setUrl] = useState<string | null>(lien ?? null);
   useEffect(() => {
+    // Photo reçue en direct (pas dans le chargement de la page) : on demande son lien
+    if (lien) return;
     createClient()
       .storage.from("messages")
       .createSignedUrl(chemin, 3600)
       .then(({ data }) => setUrl(data?.signedUrl ?? null));
-  }, [chemin]);
+  }, [chemin, lien]);
   return url ? (
     // eslint-disable-next-line @next/next/no-img-element -- URL signée temporaire, pas d'optimisation Next utile
     <img src={url} alt="Photo envoyée" className="max-h-60 w-48 rounded-2xl object-cover" />

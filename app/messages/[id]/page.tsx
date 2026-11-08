@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
+import { getUtilisateur } from "@/lib/supabase/server";
 import type { Message, Offre } from "@/lib/types";
 import { Chat } from "./Chat";
 
@@ -11,10 +11,7 @@ type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ offre?: 
 export default async function Discussion({ params, searchParams }: Props) {
   const { id } = await params;
   const { offre } = await searchParams;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getUtilisateur();
   if (!user) redirect(`/connexion?suite=/messages/${id}`);
 
   // La RLS renvoie null si l'utilisateur ne participe pas à la conversation
@@ -41,6 +38,13 @@ export default async function Discussion({ params, searchParams }: Props) {
     supabase.from("avis").select("offre_id").eq("client_id", user.id),
   ]);
 
+  // Liens des photos du chat générés en une seule fois (au lieu d'une requête par photo)
+  const chemins = (messages ?? []).filter((m) => m.type === "image" && m.media_path).map((m) => m.media_path as string);
+  const { data: liens } = chemins.length
+    ? await supabase.storage.from("messages").createSignedUrls(chemins, 3600)
+    : { data: [] };
+  const photos = Object.fromEntries((liens ?? []).filter((l) => l.path && l.signedUrl).map((l) => [l.path!, l.signedUrl as string]));
+
   const estArtisan = conv.artisan_id === user.id;
   const c = conv as unknown as {
     client: { nom_complet: string } | null;
@@ -62,6 +66,7 @@ export default async function Discussion({ params, searchParams }: Props) {
       offresInitiales={(offres ?? []) as Offre[]}
       offresNotees={(avis ?? []).map((a) => a.offre_id)}
       ouvrirOffre={offre === "1" && estArtisan}
+      photos={photos}
     />
   );
 }

@@ -9,8 +9,7 @@ import { IconeLieu, IconeMetier, IconeRecherche, Logo } from "@/components/Icone
 import { Titre2, Vide } from "@/components/ui";
 
 export default async function Accueil() {
-  const { supabase, profil } = await getSession();
-  const { metiers, quartiers } = await chargerReferentiels(supabase);
+  const [{ supabase, profil }, { metiers, quartiers }] = await Promise.all([getSession(), chargerReferentiels()]);
   const quartier = quartiers.find((q) => q.slug === profil?.quartier);
 
   const { data } = await supabase.rpc("rechercher_artisans", {

@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
+import { getUtilisateur } from "@/lib/supabase/server";
 import { Avatar, Entete, Vide } from "@/components/ui";
 import { FormulaireAvis } from "./FormulaireAvis";
 
@@ -8,10 +8,7 @@ export const metadata: Metadata = { title: "Noter l'artisan" };
 
 export default async function NoterArtisan({ params }: { params: Promise<{ offreId: string }> }) {
   const { offreId } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getUtilisateur();
   if (!user) redirect(`/connexion?suite=/avis/${offreId}`);
 
   const { data: offre } = await supabase

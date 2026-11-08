@@ -20,7 +20,7 @@ export default async function ProfilArtisanEdition({ searchParams }: { searchPar
   if (!user) redirect("/connexion?suite=/espace/profil");
 
   const [{ metiers, quartiers }, { data: fiche }, { data: realisations }, { data: verif }] = await Promise.all([
-    chargerReferentiels(supabase),
+    chargerReferentiels(),
     supabase
       .from("artisans")
       .select("metier, quartier_base, bio, annees_experience, tarif_base, competences, zones, jours_dispo, verification, note_moyenne, nb_avis")

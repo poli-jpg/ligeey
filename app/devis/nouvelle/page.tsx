@@ -8,8 +8,7 @@ export const metadata: Metadata = { title: "Nouvelle demande de devis" };
 
 export default async function NouvelleDemande({ searchParams }: { searchParams: Promise<{ metier?: string }> }) {
   const { metier } = await searchParams;
-  const { supabase, profil } = await getSession();
-  const { metiers, quartiers } = await chargerReferentiels(supabase);
+  const [{ profil }, { metiers, quartiers }] = await Promise.all([getSession(), chargerReferentiels()]);
 
   return (
     <>

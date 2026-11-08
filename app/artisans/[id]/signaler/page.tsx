@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { getUtilisateur } from "@/lib/supabase/server";
 import { Entete } from "@/components/ui";
 import { FormulaireSignalement } from "./FormulaireSignalement";
 
@@ -8,10 +8,7 @@ export const metadata: Metadata = { title: "Signaler un profil", robots: { index
 
 export default async function Signaler({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { supabase, user } = await getUtilisateur();
   if (!user) redirect(`/connexion?suite=/artisans/${id}/signaler`);
   if (user.id === id) redirect(`/artisans/${id}`);
 
