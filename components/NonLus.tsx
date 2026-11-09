@@ -44,6 +44,14 @@ export function useNonLus() {
       moi = data.session?.user.id ?? null;
       if (!moi || !actif) return;
       charger();
+      // Notifications déjà autorisées sur ce téléphone : on le rattache au compte connecté
+      if ("Notification" in window && Notification.permission === "granted") {
+        navigator.serviceWorker?.getRegistration().then((reg) => reg?.pushManager.getSubscription()).then((abo) => {
+          if (!abo) return;
+          const j = abo.toJSON();
+          supabase.rpc("enregistrer_abonnement", { p_endpoint: abo.endpoint, p_p256dh: j.keys?.p256dh ?? "", p_auth: j.keys?.auth ?? "" }).then(() => {});
+        });
+      }
       canal
         .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (p) => {
           const m = p.new as { auteur_id: string; conversation_id: string; type: string; contenu: string | null };

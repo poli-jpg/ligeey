@@ -5,7 +5,7 @@ import { getSession } from "@/lib/supabase/server";
 import { chargerReferentiels } from "@/lib/referentiels";
 import { ajouterRealisation, majPhotoProfil, supprimerRealisation } from "@/actions/artisan";
 import { SupprimerCompte } from "@/components/SupprimerCompte";
-import { deconnexion } from "@/actions/auth";
+import { BoutonDeconnexion } from "@/components/BoutonDeconnexion";
 import { BarreNav } from "@/components/BarreNav";
 import { EnvoiFichier } from "@/components/EnvoiFichier";
 import { EnvoiIdentite } from "@/components/EnvoiIdentite";
@@ -132,9 +132,9 @@ export default async function ProfilArtisanEdition({ searchParams }: { searchPar
           </>
         ) : null}
 
-        <form action={deconnexion}>
-          <button className="bouton-secondaire w-full">Se déconnecter</button>
-        </form>
+        <div>
+          <BoutonDeconnexion />
+        </div>
         <div className="-mt-4 flex justify-center">
           <SupprimerCompte artisan={Boolean(fiche)} />
         </div>

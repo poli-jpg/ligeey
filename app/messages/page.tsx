@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/supabase/server";
 import { quand } from "@/lib/format";
 import { PastilleNonLus } from "@/components/NonLus";
+import { ActiverNotifications } from "@/components/ActiverNotifications";
 import { BarreNav } from "@/components/BarreNav";
 import { Avatar, Entete, Vide } from "@/components/ui";
 
@@ -43,7 +44,10 @@ export default async function Messages() {
   return (
     <>
       <Entete titre="Messages" />
-      <main className={conversations.length ? "flex flex-col bg-carte" : "px-4 pt-5"}>
+      <div className="px-4 pt-4 empty:hidden">
+        <ActiverNotifications pourArtisan={profil?.role === "artisan"} />
+      </div>
+      <main className={conversations.length ? "mt-3 flex flex-col bg-carte" : "px-4 pt-5"}>
         {conversations.length === 0 ? (
           <Vide>Aucune conversation. Contactez un artisan depuis son profil pour commencer.</Vide>
         ) : null}

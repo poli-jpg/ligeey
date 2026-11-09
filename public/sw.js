@@ -4,7 +4,7 @@
  * - Supabase et tout autre domaine : jamais interceptés.
  * Changer VERSION à chaque modification de ce fichier.
  */
-const VERSION = "ligeey-v2";
+const VERSION = "ligeey-v3";
 const CACHE_STATIQUE = `${VERSION}-statique`;
 const PAGE_HORS_LIGNE = "/hors-ligne";
 const A_PRECHARGER = [
@@ -70,4 +70,46 @@ self.addEventListener("fetch", (event) => {
     );
   }
   // Le reste (données React Server Components, actions…) passe directement par le réseau
+});
+
+// ---------------------------------------------------------------------
+// Notifications (envoyées par Ligeey, même appli fermée)
+// ---------------------------------------------------------------------
+self.addEventListener("push", (event) => {
+  let d = {};
+  try {
+    d = event.data ? event.data.json() : {};
+  } catch {
+    d = { titre: "Ligeey", corps: event.data ? event.data.text() : "" };
+  }
+  const url = typeof d.url === "string" && d.url.startsWith("/") ? d.url : "/";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((fenetres) => {
+      // Déjà en train de lire cette conversation, appli au premier plan : pas besoin de sonner
+      const dejaLa = fenetres.some((f) => f.focused && new URL(f.url).pathname === url);
+      if (dejaLa) return;
+      return self.registration.showNotification(d.titre || "Ligeey", {
+        body: d.corps || "",
+        icon: "/icones/icone-192.png",
+        badge: "/icones/icone-192.png",
+        tag: d.tag || undefined,
+        renotify: Boolean(d.tag),
+        data: { url },
+        lang: "fr",
+      });
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || "/";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((fenetres) => {
+      // Réutilise l'appli déjà ouverte si possible
+      const ouverte = fenetres.find((f) => new URL(f.url).origin === self.location.origin);
+      if (ouverte) return ouverte.navigate(url).then((f) => (f || ouverte).focus());
+      return self.clients.openWindow(url);
+    }),
+  );
 });

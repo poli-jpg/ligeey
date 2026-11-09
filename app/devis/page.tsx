@@ -3,10 +3,11 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/supabase/server";
 import { fermerDemande } from "@/actions/mise-en-relation";
-import { deconnexion } from "@/actions/auth";
+import { BoutonDeconnexion } from "@/components/BoutonDeconnexion";
 import { BarreNav } from "@/components/BarreNav";
 import { Entete, Pastille, Titre2, Vide } from "@/components/ui";
 import { SupprimerCompte } from "@/components/SupprimerCompte";
+import { ActiverNotifications } from "@/components/ActiverNotifications";
 
 export const metadata: Metadata = { title: "Mes demandes" };
 
@@ -36,6 +37,7 @@ export default async function MesDemandes({ searchParams }: { searchParams: Prom
             Demande publiée. Les artisans du métier peuvent maintenant vous faire une offre.
           </p>
         ) : null}
+        <ActiverNotifications />
         <Link href="/devis/nouvelle" className="bouton">Publier une demande de devis</Link>
 
         <Titre2>Historique</Titre2>
@@ -67,9 +69,9 @@ export default async function MesDemandes({ searchParams }: { searchParams: Prom
 
         {profil ? (
           <>
-            <form action={deconnexion} className="pt-4">
-              <button className="bouton-secondaire w-full">Se déconnecter</button>
-            </form>
+            <div className="pt-4">
+          <BoutonDeconnexion />
+        </div>
             <div className="flex justify-center">
               <SupprimerCompte artisan={profil.role === "artisan"} />
             </div>
