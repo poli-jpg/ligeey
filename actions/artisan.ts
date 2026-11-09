@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { createHash } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
+import { besoinVerso, estTypePiece, normaliserNumero } from "@/lib/identite";
 
 async function utilisateur() {
   const supabase = await createClient();
@@ -94,14 +96,53 @@ export async function supprimerRealisation(formData: FormData) {
   revalidatePath("/espace/profil");
 }
 
-// Appelée après l'envoi de la pièce d'identité dans le bucket privé
-export async function envoyerVerification(documentPath: string) {
-  const { supabase, user } = await utilisateur();
-  if (!documentPath.startsWith(`${user.id}/`)) throw new Error("Chemin invalide");
+export type DossierIdentite = {
+  type: string;
+  nom: string;
+  numero: string;
+  recto: string;
+  verso: string | null;
+  selfie: string;
+};
 
-  const { error } = await supabase
-    .from("verifications")
-    .insert({ artisan_id: user.id, document_path: documentPath });
-  if (error) throw new Error("Envoi impossible");
+// Appelée après l'envoi des photos (recto, verso, selfie) dans le bucket privé
+export async function envoyerVerification(d: DossierIdentite): Promise<{ erreur?: string }> {
+  const { supabase, user } = await utilisateur();
+
+  if (!estTypePiece(d.type)) return { erreur: "Choisissez le type de pièce." };
+  const nom = d.nom.trim();
+  const numero = normaliserNumero(d.numero);
+  if (nom.length < 3) return { erreur: "Indiquez votre nom complet comme sur la pièce." };
+  if (numero.length < 5) return { erreur: "Le numéro de la pièce paraît incomplet." };
+  if (besoinVerso(d.type) && !d.verso) return { erreur: "Il manque la photo du verso." };
+
+  const chemins = [d.recto, d.verso, d.selfie].filter(Boolean) as string[];
+  if (!d.recto || !d.selfie || chemins.some((c) => !c.startsWith(`${user.id}/`))) {
+    return { erreur: "Photos invalides. Recommencez." };
+  }
+
+  // On ne garde pas le numéro en clair : une empreinte suffit pour repérer
+  // une même pièce envoyée par deux comptes différents.
+  const empreinte = createHash("sha256").update(`ligeey:${d.type}:${numero}`).digest("hex");
+
+  const { error } = await supabase.from("verifications").insert({
+    artisan_id: user.id,
+    type_piece: d.type,
+    nom_piece: nom.slice(0, 120),
+    numero_empreinte: empreinte,
+    document_path: d.recto,
+    verso_path: d.verso,
+    selfie_path: d.selfie,
+  });
+
+  if (error) {
+    await supabase.storage.from("pieces-identite").remove(chemins);
+    if (error.code === "23505") {
+      return { erreur: "Cette pièce d'identité est déjà utilisée par un autre compte. Contactez Ligeey si c'est une erreur." };
+    }
+    console.error("envoyerVerification", error.code, error.message);
+    return { erreur: "Envoi impossible pour le moment. Réessayez." };
+  }
   revalidatePath("/espace/profil");
+  return {};
 }

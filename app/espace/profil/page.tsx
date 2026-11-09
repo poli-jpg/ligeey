@@ -3,10 +3,11 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/supabase/server";
 import { chargerReferentiels } from "@/lib/referentiels";
-import { ajouterRealisation, envoyerVerification, supprimerRealisation } from "@/actions/artisan";
+import { ajouterRealisation, supprimerRealisation } from "@/actions/artisan";
 import { deconnexion } from "@/actions/auth";
 import { BarreNav } from "@/components/BarreNav";
 import { EnvoiFichier } from "@/components/EnvoiFichier";
+import { EnvoiIdentite } from "@/components/EnvoiIdentite";
 import { IconeEtoile, IconeTelephoneVerifie, IconeVerifie } from "@/components/Icones";
 import { estRecommande, SEUIL_RECOMMANDE } from "@/lib/types";
 import { Entete, Pastille, Titre2 } from "@/components/ui";
@@ -59,24 +60,21 @@ export default async function ProfilArtisanEdition({ searchParams }: { searchPar
                   <IconeVerifie className="size-7 shrink-0" />
                   <div className="flex flex-1 flex-col">
                     <span className="font-bold">Identité vérifiée</span>
-                    <span className="text-[13px] text-gris">Envoyez votre carte d&apos;identité. Elle reste privée : seule l&apos;équipe Ligeey la voit.</span>
+                    <span className="text-[13px] text-gris">Photos de votre vraie pièce (recto, verso) et un selfie avec elle. Vérifiées une par une par l&apos;équipe Ligeey.</span>
                   </div>
                   {fiche.verification === "verifie" ? <Pastille>Obtenu</Pastille> : null}
                   {fiche.verification === "en_attente" ? <Pastille ton="ambre">En cours</Pastille> : null}
                 </div>
+                {fiche.verification === "en_attente" ? (
+                  <p className="text-[13px] text-gris">Photos reçues. Nous vérifions votre pièce, en général sous 24 h.</p>
+                ) : null}
                 {fiche.verification === "refuse" ? (
                   <p className="rounded-xl bg-ambre-clair px-3 py-2 text-[13px] font-semibold text-ambre">
-                    Refusée{verif?.motif_refus ? ` : ${verif.motif_refus}` : ""}. Vous pouvez envoyer une nouvelle photo.
+                    Refusée{verif?.motif_refus ? ` : ${verif.motif_refus}` : ""}. Vous pouvez recommencer.
                   </p>
                 ) : null}
                 {fiche.verification === "non_soumis" || fiche.verification === "refuse" ? (
-                  <EnvoiFichier
-                    bucket="pieces-identite"
-                    userId={user.id}
-                    libelle="Envoyer ma pièce d'identité"
-                    accept="image/*,application/pdf"
-                    enregistrer={envoyerVerification}
-                  />
+                  <EnvoiIdentite userId={user.id} nomProfil={profil?.nom_complet ?? ""} />
                 ) : null}
               </div>
 

@@ -145,7 +145,11 @@ export async function traiterVerification(formData: FormData) {
   const { error } = await supabase.rpc("traiter_verification", {
     p_verification: String(formData.get("id")),
     p_valider: formData.get("decision") === "valider",
-    p_motif: String(formData.get("motif") ?? "") || null,
+    // Motif choisi dans la liste, ou précisé à la main avec « Autre »
+    p_motif:
+      formData.get("decision") === "valider"
+        ? null
+        : String(formData.get("motif_autre") ?? "").trim() || String(formData.get("motif") ?? "").trim() || null,
   });
   if (error) console.error("traiterVerification", error.message);
   revalidatePath("/admin");
