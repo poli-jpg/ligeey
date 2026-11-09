@@ -79,7 +79,7 @@ export default async function Recherche({ searchParams }: { searchParams: Promis
             </select>
             <label className="sr-only" htmlFor="quartier">Quartier</label>
             <select id="quartier" name="quartier" defaultValue={gps ? "" : quartier || "partout"} className="champ min-h-12 w-[42%] border-0 bg-fond font-semibold">
-              {gps ? <option value="">📍 Autour de moi</option> : null}
+              {gps ? <option value="">📍 Ma position</option> : null}
               <option value="partout">Partout</option>
               {quartiers.map((q) => (
                 <option key={q.slug} value={q.slug}>{q.nom}</option>
