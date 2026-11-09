@@ -73,12 +73,13 @@ export default async function Admin() {
 
           {verifications.map((v) => {
             const nomProfil = v.artisan.profil.nom_complet;
-            const ancienFormat = !v.selfie_path; // envoyé avant la vérification en 3 photos
+            const ancienFormat = !v.type_piece; // envoyé avant la nouvelle vérification (1 photo, sans type)
             const concordance = nomsConcordent(nomProfil, v.nom_piece);
             const photos = [
               { titre: "Recto", chemin: v.document_path },
               ...(besoinVerso(v.type_piece) || v.verso_path ? [{ titre: "Verso", chemin: v.verso_path }] : []),
-              { titre: "Selfie avec la pièce", chemin: v.selfie_path },
+              // Selfie des envois faits avant son retrait
+              ...(v.selfie_path ? [{ titre: "Selfie avec la pièce", chemin: v.selfie_path }] : []),
             ];
             return (
               <article key={v.id} className="carte flex flex-col gap-4 p-4">
@@ -141,7 +142,7 @@ export default async function Admin() {
                   {[
                     "C'est une vraie pièce (pas une photocopie ni une photo d'écran)",
                     "Le nom sur la pièce est celui du profil",
-                    "Le visage du selfie est celui de la pièce",
+                    "La photo de la pièce ressemble à celle du profil, s'il en a une",
                     "La pièce est lisible et pas expirée",
                   ].map((c) => (
                     <label key={c} className="flex items-start gap-2.5 text-[13px] font-semibold">
@@ -153,7 +154,7 @@ export default async function Admin() {
                     Valider le badge
                   </BoutonEnvoi>
                   {ancienFormat ? (
-                    <p className="text-xs text-gris">Ancien envoi sans selfie : refusez-le pour que l&apos;artisan recommence avec la nouvelle procédure.</p>
+                    <p className="text-xs text-gris">Ancien envoi (1 photo) : refusez-le pour que l&apos;artisan recommence avec la nouvelle procédure.</p>
                   ) : null}
                 </form>
 

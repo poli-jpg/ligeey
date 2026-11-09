@@ -9,13 +9,12 @@ import { envoyerVerification } from "@/actions/artisan";
 import { IconePhoto } from "./Icones";
 import { Erreur } from "./ui";
 
-type Cle = "recto" | "verso" | "selfie";
+type Cle = "recto" | "verso";
 type Photo = { fichier: Blob; apercu: string };
 
-const ETAPES: { cle: Cle; titre: string; aide: string; camera: "environment" | "user" }[] = [
-  { cle: "recto", titre: "Recto de la pièce", aide: "Face avec votre photo. Posez la pièce à plat, bien éclairée, les 4 coins visibles.", camera: "environment" },
-  { cle: "verso", titre: "Verso de la pièce", aide: "L'autre face, avec les lignes de chiffres et de lettres en bas.", camera: "environment" },
-  { cle: "selfie", titre: "Selfie avec la pièce", aide: "Votre visage et la pièce (côté photo) dans la même image.", camera: "user" },
+const ETAPES: { cle: Cle; titre: string; aide: string }[] = [
+  { cle: "recto", titre: "Recto de la pièce", aide: "Face avec votre photo. Posez la pièce à plat, bien éclairée, les 4 coins visibles." },
+  { cle: "verso", titre: "Verso de la pièce", aide: "L'autre face, avec les lignes de chiffres et de lettres en bas." },
 ];
 
 /** Contrôles faits sur le téléphone avant l'envoi : vraie photo, récente, assez nette. */
@@ -85,7 +84,6 @@ export function EnvoiIdentite({ userId, nomProfil }: { userId: string; nomProfil
         numero: numero.trim(),
         recto: chemins.recto!,
         verso: chemins.verso ?? null,
-        selfie: chemins.selfie!,
       });
       if (res?.erreur) throw new Error(res.erreur);
       router.refresh();
@@ -153,7 +151,7 @@ export function EnvoiIdentite({ userId, nomProfil }: { userId: string; nomProfil
                 <input
                   type="file"
                   accept="image/*"
-                  capture={e.camera}
+                  capture="environment"
                   className="sr-only"
                   onChange={(ev) => {
                     choisir(e.cle, ev.target.files?.[0]);

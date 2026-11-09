@@ -17,7 +17,6 @@ export const MOTIFS_REFUS = [
   "Photo floue ou illisible",
   "Il manque le recto ou le verso de la pièce",
   "Le nom ne correspond pas à celui du profil",
-  "Le selfie ne correspond pas à la photo de la pièce",
   "Pièce expirée",
   "Document non valable (photocopie, capture d'écran, photo d'un écran)",
 ] as const;

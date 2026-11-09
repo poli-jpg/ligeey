@@ -102,10 +102,9 @@ export type DossierIdentite = {
   numero: string;
   recto: string;
   verso: string | null;
-  selfie: string;
 };
 
-// Appelée après l'envoi des photos (recto, verso, selfie) dans le bucket privé
+// Appelée après l'envoi des photos (recto, verso) dans le bucket privé
 export async function envoyerVerification(d: DossierIdentite): Promise<{ erreur?: string }> {
   const { supabase, user } = await utilisateur();
 
@@ -116,8 +115,8 @@ export async function envoyerVerification(d: DossierIdentite): Promise<{ erreur?
   if (numero.length < 5) return { erreur: "Le numéro de la pièce paraît incomplet." };
   if (besoinVerso(d.type) && !d.verso) return { erreur: "Il manque la photo du verso." };
 
-  const chemins = [d.recto, d.verso, d.selfie].filter(Boolean) as string[];
-  if (!d.recto || !d.selfie || chemins.some((c) => !c.startsWith(`${user.id}/`))) {
+  const chemins = [d.recto, d.verso].filter(Boolean) as string[];
+  if (!d.recto || chemins.some((c) => !c.startsWith(`${user.id}/`))) {
     return { erreur: "Photos invalides. Recommencez." };
   }
 
@@ -132,7 +131,6 @@ export async function envoyerVerification(d: DossierIdentite): Promise<{ erreur?
     numero_empreinte: empreinte,
     document_path: d.recto,
     verso_path: d.verso,
-    selfie_path: d.selfie,
   });
 
   if (error) {

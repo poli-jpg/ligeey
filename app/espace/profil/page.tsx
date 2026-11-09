@@ -60,7 +60,7 @@ export default async function ProfilArtisanEdition({ searchParams }: { searchPar
                   <IconeVerifie className="size-7 shrink-0" />
                   <div className="flex flex-1 flex-col">
                     <span className="font-bold">Identité vérifiée</span>
-                    <span className="text-[13px] text-gris">Photos de votre vraie pièce (recto, verso) et un selfie avec elle. Vérifiées une par une par l&apos;équipe Ligeey.</span>
+                    <span className="text-[13px] text-gris">Photos de votre vraie pièce, recto et verso. Vérifiées une par une par l&apos;équipe Ligeey.</span>
                   </div>
                   {fiche.verification === "verifie" ? <Pastille>Obtenu</Pastille> : null}
                   {fiche.verification === "en_attente" ? <Pastille ton="ambre">En cours</Pastille> : null}
