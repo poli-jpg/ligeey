@@ -32,11 +32,16 @@ export default async function Discussion({ params, searchParams }: Props) {
       .from("messages")
       .select("id, conversation_id, auteur_id, type, contenu, media_path, offre_id, created_at")
       .eq("conversation_id", id)
-      .order("created_at")
+      // Les 200 DERNIERS messages (avant : les 200 premiers, les nouveaux disparaissaient)
+      .order("created_at", { ascending: false })
       .limit(200),
     supabase.from("offres").select("*").eq("conversation_id", id),
     supabase.from("avis").select("offre_id").eq("client_id", user.id),
   ]);
+
+  // Ouvrir la conversation = lire les messages reçus (sans bloquer l'affichage si ça échoue)
+  void supabase.rpc("marquer_lus", { p_conversation: id }).then(({ error }) => error && console.error("marquer_lus", error.message));
+  messages?.reverse();
 
   // Liens des photos du chat générés en une seule fois (au lieu d'une requête par photo)
   const chemins = (messages ?? []).filter((m) => m.type === "image" && m.media_path).map((m) => m.media_path as string);

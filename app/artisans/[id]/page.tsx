@@ -22,7 +22,7 @@ const chargerArtisan = cache(async (id: string) => {
     .select(
       `id, slug_metier:metier, competences, bio, annees_experience, tarif_base, zones, jours_dispo, disponible,
        verification, note_moyenne, nb_avis, nb_missions,
-       profil:profiles!artisans_id_fkey(nom_complet, telephone_verifie),
+       profil:profiles!artisans_id_fkey(nom_complet, telephone_verifie, avatar_url),
        metier:metiers(nom),
        quartier:quartiers(nom)`,
     )
@@ -84,7 +84,7 @@ export default async function ProfilArtisan({ params, searchParams }: Props) {
       <main className="-mt-16 flex flex-col gap-4 px-5 pb-36">
         <section className="carte flex flex-col items-center gap-3 px-5 pt-0 pb-5 text-center">
           <span className="-mt-11 rounded-full border-[5px] border-white">
-            <Avatar nom={nom} taille="lg" />
+            <Avatar nom={nom} taille="lg" url={(artisan.profil as unknown as { avatar_url: string | null }).avatar_url} />
           </span>
           <div className="flex flex-col items-center gap-1">
             <h1 className="flex items-center gap-2 font-titre text-[26px] leading-tight font-extrabold tracking-tight">

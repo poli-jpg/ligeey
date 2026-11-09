@@ -4,12 +4,12 @@ import { distance, fcfa } from "@/lib/format";
 import { IconeLieu, IconeMetier, IconeOutil } from "./Icones";
 import { Avatar, BadgeNom, Note } from "./ui";
 
-export function CarteArtisan({ a }: { a: ArtisanRecherche }) {
+export function CarteArtisan({ a, depuisGps = false }: { a: ArtisanRecherche; depuisGps?: boolean }) {
   return (
     <Link href={`/artisans/${a.id}`} className="carte group flex flex-col gap-3.5 p-4 transition-transform active:scale-[0.99]">
       <span className="flex items-start gap-3">
         <span className="relative">
-          <Avatar nom={a.nom_complet} />
+          <Avatar nom={a.nom_complet} url={a.avatar_url} />
           {a.disponible ? (
             <span className="absolute right-0 bottom-0 size-3.5 rounded-full border-2 border-white bg-green-500" aria-hidden />
           ) : null}
@@ -31,10 +31,10 @@ export function CarteArtisan({ a }: { a: ArtisanRecherche }) {
       </span>
 
       <span className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-gris">
-        {distance(a.distance_km) ? (
-          <span className="flex items-center gap-1" title="Distance estimée par la route depuis le quartier choisi">
+        {distance(a.distance_km, depuisGps) ? (
+          <span className="flex items-center gap-1" title={depuisGps ? "Distance estimée par la route depuis votre position" : "Distance estimée par la route depuis le quartier choisi"}>
             <IconeLieu className="size-3.5" />
-            {distance(a.distance_km)}
+            {distance(a.distance_km, depuisGps)}
           </span>
         ) : null}
         {a.annees_experience ? (

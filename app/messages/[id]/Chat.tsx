@@ -58,7 +58,14 @@ export function Chat(props: Props) {
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
-        (p) => ajouterMessage(p.new as Message),
+        (p) => {
+          const m = p.new as Message;
+          ajouterMessage(m);
+          // Message reçu pendant qu'on lit la conversation : il est lu
+          if (m.auteur_id !== moi && document.visibilityState === "visible") {
+            supabase.rpc("marquer_lus", { p_conversation: conversationId }).then(() => {});
+          }
+        },
       )
       .on(
         "postgres_changes",
@@ -69,6 +76,13 @@ export function Chat(props: Props) {
     return () => {
       supabase.removeChannel(canal);
     };
+  }, [supabase, conversationId, moi]);
+
+  // Retour sur l'appli avec la conversation ouverte : ce qui est arrivé entre-temps est lu
+  useEffect(() => {
+    const auRetour = () => document.visibilityState === "visible" && supabase.rpc("marquer_lus", { p_conversation: conversationId }).then(() => {});
+    document.addEventListener("visibilitychange", auRetour);
+    return () => document.removeEventListener("visibilitychange", auRetour);
   }, [supabase, conversationId]);
 
   // Carte d'offre arrivée avant l'offre elle-même : on la charge

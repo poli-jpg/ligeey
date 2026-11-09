@@ -3,14 +3,15 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/supabase/server";
 import { chargerReferentiels } from "@/lib/referentiels";
-import { ajouterRealisation, supprimerRealisation } from "@/actions/artisan";
+import { ajouterRealisation, majPhotoProfil, supprimerRealisation } from "@/actions/artisan";
+import { SupprimerCompte } from "@/components/SupprimerCompte";
 import { deconnexion } from "@/actions/auth";
 import { BarreNav } from "@/components/BarreNav";
 import { EnvoiFichier } from "@/components/EnvoiFichier";
 import { EnvoiIdentite } from "@/components/EnvoiIdentite";
 import { IconeEtoile, IconeTelephoneVerifie, IconeVerifie } from "@/components/Icones";
 import { estRecommande, SEUIL_RECOMMANDE } from "@/lib/types";
-import { Entete, Pastille, Titre2 } from "@/components/ui";
+import { Avatar, Entete, Pastille, Titre2 } from "@/components/ui";
 import { FormulaireArtisan, type FicheArtisan } from "./FormulaireArtisan";
 
 export const metadata: Metadata = { title: "Mon profil artisan" };
@@ -40,6 +41,17 @@ export default async function ProfilArtisanEdition({ searchParams }: { searchPar
       <main className="flex flex-col gap-8 px-4 pt-5 pb-4">
         {nouveau && !fiche ? (
           <p className="text-[15px] text-gris">Ces informations apparaissent sur votre profil public. Vous pourrez les modifier à tout moment.</p>
+        ) : null}
+
+        {fiche ? (
+          <section className="flex items-center gap-4 rounded-2xl bg-carte p-4 shadow-carte">
+            <Avatar nom={profil?.nom_complet ?? ""} taille="lg" url={profil?.avatar_url} />
+            <div className="flex flex-1 flex-col gap-2">
+              <span className="text-sm font-bold">Photo de profil</span>
+              <span className="text-[13px] leading-snug text-gris">Un visage souriant inspire confiance. Évitez les logos et les photos de groupe.</span>
+              <EnvoiFichier bucket="realisations" userId={user.id} libelle={profil?.avatar_url ? "Changer la photo" : "+ Ajouter ma photo"} enregistrer={majPhotoProfil} />
+            </div>
+          </section>
         ) : null}
 
         {fiche ? (
@@ -123,6 +135,9 @@ export default async function ProfilArtisanEdition({ searchParams }: { searchPar
         <form action={deconnexion}>
           <button className="bouton-secondaire w-full">Se déconnecter</button>
         </form>
+        <div className="-mt-4 flex justify-center">
+          <SupprimerCompte artisan={Boolean(fiche)} />
+        </div>
       </main>
       {fiche ? <BarreNav role={profil?.role} /> : null}
     </>

@@ -145,3 +145,22 @@ export async function envoyerVerification(d: DossierIdentite): Promise<{ erreur?
   revalidatePath("/espace/profil");
   return {};
 }
+
+// Photo de profil : envoyée dans le dossier public de l'utilisateur (bucket "realisations")
+export async function majPhotoProfil(chemin: string) {
+  const { supabase, user } = await utilisateur();
+  if (!chemin.startsWith(`${user.id}/`)) throw new Error("Chemin invalide");
+  const url = supabase.storage.from("realisations").getPublicUrl(chemin).data.publicUrl;
+
+  const { data: avant } = await supabase.from("profiles").select("avatar_url").eq("id", user.id).single();
+  const { error } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
+  if (error) throw new Error("Photo non enregistrée");
+
+  // L'ancienne photo de profil est effacée
+  const ancien = avant?.avatar_url?.split("/storage/v1/object/public/realisations/")[1];
+  if (ancien && ancien.startsWith(`${user.id}/`) && ancien !== chemin) {
+    await supabase.storage.from("realisations").remove([decodeURIComponent(ancien)]);
+  }
+  revalidatePath("/espace/profil");
+  revalidatePath(`/artisans/${user.id}`);
+}

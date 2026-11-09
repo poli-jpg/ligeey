@@ -15,7 +15,7 @@ export default async function Inscription({ searchParams }: { searchParams: Prom
       pied={
         <p className="text-gris">
           Déjà inscrit ?{" "}
-          <Link href={`/connexion${suiteQs}`} className="font-extrabold text-nuit underline decoration-chantier decoration-2 underline-offset-4">
+          <Link href={`/connexion${suiteQs}`} className="inline-block py-3 font-extrabold text-nuit underline decoration-chantier decoration-2 underline-offset-4">
             Se connecter
           </Link>
         </p>

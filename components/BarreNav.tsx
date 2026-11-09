@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Role } from "@/lib/types";
+import { AlerteMessage, PastilleNonLus, useNonLus } from "./NonLus";
 import { IconeAccueil, IconeBouclier, IconeCompte, IconeDevis, IconeMessage, IconeRecherche, IconeTableau } from "./Icones";
 
 const NAV_CLIENT = [
@@ -30,6 +31,7 @@ const NAV_ADMIN = [
 /** Onglets du bas façon WhatsApp : collés au bord, pastille jaune derrière l'icône active. */
 export function BarreNav({ role }: { role?: Role | null }) {
   const chemin = usePathname();
+  const { total, alerte, fermerAlerte } = useNonLus();
   const liens = role === "admin" ? NAV_ADMIN : role === "artisan" ? NAV_ARTISAN : NAV_CLIENT;
   const actif = liens
     .filter(({ href }) => (href === "/" ? chemin === "/" : chemin === href || chemin.startsWith(href + "/")))
@@ -37,6 +39,7 @@ export function BarreNav({ role }: { role?: Role | null }) {
 
   return (
     <>
+      <AlerteMessage alerte={alerte} fermer={fermerAlerte} />
       {/* Réserve la place de la barre pour que rien ne passe dessous */}
       <div aria-hidden className="h-[calc(72px+env(safe-area-inset-bottom))]" />
       <nav
@@ -54,11 +57,12 @@ export function BarreNav({ role }: { role?: Role | null }) {
                 className="flex flex-col items-center justify-center gap-1"
               >
                 <span
-                  className={`flex h-8 w-16 items-center justify-center rounded-full transition-colors ${
+                  className={`relative flex h-8 w-16 items-center justify-center rounded-full transition-colors ${
                     estActif ? "bg-chantier text-encre" : "text-gris"
                   }`}
                 >
                   <Icone className="size-[22px]" />
+                  {href === "/messages" ? <PastilleNonLus n={total} className="absolute -top-1 right-2" /> : null}
                 </span>
                 <span className={`text-[12px] ${estActif ? "font-extrabold text-encre" : "font-semibold text-gris"}`}>{label}</span>
               </Link>

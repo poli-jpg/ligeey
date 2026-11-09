@@ -52,15 +52,28 @@ export const LONGUEUR_MIN_MOT_DE_PASSE = 8;
  */
 export const DETOUR_ROUTE = 1.35;
 
-/** Distance entre deux quartiers, telle qu'on l'affiche au client. */
-export function distance(km: number | string | null | undefined) {
+/**
+ * Distance telle qu'on l'affiche au client.
+ * depuisGps : le point de départ est la position du téléphone (et non le centre d'un quartier).
+ */
+export function distance(km: number | string | null | undefined, depuisGps = false) {
   if (km == null) return null;
   const ligneDroite = Number(km);
   if (!Number.isFinite(ligneDroite)) return null;
   // Même quartier : positions identiques (centre du quartier)
-  if (ligneDroite < 0.5) return "Même quartier";
+  if (ligneDroite < 0.5) return depuisGps ? "À moins de 1 km" : "Même quartier";
   const route = ligneDroite * DETOUR_ROUTE;
   // Moins de 10 km : à 0,5 km près ; au-delà, au km près
   const arrondi = route < 10 ? Math.max(1, Math.round(route * 2) / 2) : Math.round(route);
   return `≈ ${arrondi.toLocaleString("fr-FR")} km`;
+}
+
+/** Heure si c'est aujourd'hui, « Hier », sinon la date courte (comme WhatsApp). */
+export function quand(iso: string) {
+  const d = new Date(iso);
+  const jour = (x: Date) => new Intl.DateTimeFormat("fr-FR", { timeZone: "Africa/Dakar", dateStyle: "short" }).format(x);
+  const maintenant = new Date();
+  if (jour(d) === jour(maintenant)) return heure(iso);
+  if (jour(d) === jour(new Date(maintenant.getTime() - 86400000))) return "Hier";
+  return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", timeZone: "Africa/Dakar" }).format(d);
 }

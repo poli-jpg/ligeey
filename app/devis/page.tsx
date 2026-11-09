@@ -6,6 +6,7 @@ import { fermerDemande } from "@/actions/mise-en-relation";
 import { deconnexion } from "@/actions/auth";
 import { BarreNav } from "@/components/BarreNav";
 import { Entete, Pastille, Titre2, Vide } from "@/components/ui";
+import { SupprimerCompte } from "@/components/SupprimerCompte";
 
 export const metadata: Metadata = { title: "Mes demandes" };
 
@@ -65,9 +66,14 @@ export default async function MesDemandes({ searchParams }: { searchParams: Prom
         })}
 
         {profil ? (
-          <form action={deconnexion} className="pt-4">
-            <button className="bouton-secondaire w-full">Se déconnecter</button>
-          </form>
+          <>
+            <form action={deconnexion} className="pt-4">
+              <button className="bouton-secondaire w-full">Se déconnecter</button>
+            </form>
+            <div className="flex justify-center">
+              <SupprimerCompte artisan={profil.role === "artisan"} />
+            </div>
+          </>
         ) : null}
       </main>
       <BarreNav role={profil?.role} />

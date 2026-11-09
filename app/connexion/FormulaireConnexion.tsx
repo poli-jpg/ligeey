@@ -31,7 +31,7 @@ export function FormulaireConnexion({ suite }: { suite: string }) {
       <input type="hidden" name="suite" value={suite} />
       <ChampTelephone defaut={etat.saisie?.telephone} />
       <ChampMotDePasse />
-      <Link href={`/mot-de-passe-oublie${suiteQs}`} className="self-end py-1 text-sm font-bold text-nuit underline underline-offset-4">
+      <Link href={`/mot-de-passe-oublie${suiteQs}`} className="-my-2 self-end py-3 text-sm font-bold text-nuit underline underline-offset-4">
         Mot de passe oublié ?
       </Link>
       <Erreur message={etat.erreur} />

@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/supabase/server";
-import { note } from "@/lib/format";
+import { distance, note, quand } from "@/lib/format";
 import { repondreDemande } from "@/actions/mise-en-relation";
 import { BarreNav } from "@/components/BarreNav";
 import { InstallerApp } from "@/components/InstallerApp";
@@ -30,19 +30,26 @@ export default async function EspaceArtisan({ searchParams }: { searchParams: Pr
     .maybeSingle();
   if (!artisan) redirect("/espace/profil?nouveau=1");
 
-  // La RLS ne renvoie que les demandes ouvertes du métier de l'artisan
-  const [{ data: demandes }, { data: dejaRepondu }, { count: enCours }] = await Promise.all([
-    supabase
+  // Demandes ouvertes du métier, les plus proches du quartier de l'artisan d'abord
+  const [{ data: proches, error: errProches }, { data: dejaRepondu }, { count: enCours }] = await Promise.all([
+    supabase.rpc("demandes_proches", { p_limite: 20 }),
+    supabase.from("conversations").select("demande_id").eq("artisan_id", user.id).not("demande_id", "is", null),
+    supabase.from("offres").select("id", { count: "exact", head: true }).eq("artisan_id", user.id).eq("statut", "acceptee"),
+  ]);
+  type Demande = { id: string; client_id: string; description: string; budget: number | null; urgence: string; quartier_nom: string; created_at: string; distance_km: number | null };
+  let demandes = (proches ?? []) as Demande[];
+  if (errProches) {
+    // Base pas encore à jour : ancienne liste, par date
+    const { data } = await supabase
       .from("demandes")
-      .select("id, client_id, description, budget, urgence, photos, created_at, quartier:quartiers(nom)")
+      .select("id, client_id, description, budget, urgence, created_at, quartier:quartiers(nom)")
       .eq("statut", "ouverte")
       .eq("metier", artisan.metier)
       .neq("client_id", user.id)
       .order("created_at", { ascending: false })
-      .limit(20),
-    supabase.from("conversations").select("demande_id").eq("artisan_id", user.id).not("demande_id", "is", null),
-    supabase.from("offres").select("id", { count: "exact", head: true }).eq("artisan_id", user.id).eq("statut", "acceptee"),
-  ]);
+      .limit(20);
+    demandes = (data ?? []).map((d) => ({ ...d, quartier_nom: (d.quartier as unknown as { nom: string }).nom, distance_km: null }));
+  }
   const repondues = new Set((dejaRepondu ?? []).map((c) => c.demande_id));
   const prenom = profil?.nom_complet.split(" ")[0];
 
@@ -55,7 +62,7 @@ export default async function EspaceArtisan({ searchParams }: { searchParams: Pr
             <h1 className="font-titre text-[22px] font-bold text-white">Votre activité</h1>
           </div>
           <Link href={`/artisans/${user.id}`} aria-label="Voir mon profil public">
-            <Avatar nom={profil?.nom_complet ?? ""} />
+            <Avatar nom={profil?.nom_complet ?? ""} url={profil?.avatar_url} />
           </Link>
         </div>
         <Disponibilite disponible={artisan.disponible} />
@@ -99,8 +106,10 @@ export default async function EspaceArtisan({ searchParams }: { searchParams: Pr
                 <Pastille ton={u.ton}>{u.texte}</Pastille>
               </div>
               <p className="text-[13px] text-gris">
-                {(d.quartier as unknown as { nom: string }).nom}
+                <strong className="font-semibold text-encre">{d.quartier_nom}</strong>
+                {distance(d.distance_km) ? ` · ${distance(d.distance_km)}` : ""}
                 {d.budget ? ` · budget ${d.budget.toLocaleString("fr-FR")} FCFA` : " · budget non précisé"}
+                {` · ${quand(d.created_at)}`}
               </p>
               <form action={repondreDemande}>
                 <input type="hidden" name="demande_id" value={d.id} />

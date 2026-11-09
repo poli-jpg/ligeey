@@ -93,7 +93,7 @@ export default async function Accueil() {
         <section className="flex flex-col gap-3">
           <div className="flex items-baseline justify-between">
             <Titre2>{quartier ? `Près de ${quartier.nom}` : "Artisans les mieux notés"}</Titre2>
-            <Link href="/recherche" className="text-[13px] font-bold text-nuit underline decoration-chantier decoration-2 underline-offset-4">
+            <Link href="/recherche" className="-my-3 py-3 pl-3 text-[13px] font-bold text-nuit underline decoration-chantier decoration-2 underline-offset-4">
               Tout voir
             </Link>
           </div>

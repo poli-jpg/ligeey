@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { getSession } from "@/lib/supabase/server";
@@ -7,33 +8,46 @@ import { BarreNav } from "@/components/BarreNav";
 import { CarteArtisan } from "@/components/CarteArtisan";
 import { IconeRetour } from "@/components/Icones";
 import { Vide } from "@/components/ui";
+import { AutourDeMoi } from "./AutourDeMoi";
 
 export const metadata: Metadata = { title: "Rechercher un artisan" };
 
-type Params = { metier?: string; quartier?: string; note?: string; dispo?: string; verifie?: string };
+type Params = { metier?: string; quartier?: string; note?: string; dispo?: string; verifie?: string; lat?: string; lng?: string };
 
 export default async function Recherche({ searchParams }: { searchParams: Promise<Params> }) {
   const p = await searchParams;
   const [{ supabase, profil }, { metiers, quartiers }] = await Promise.all([getSession(), chargerReferentiels()]);
 
+  // Position GPS du téléphone (bouton « Autour de moi »), si elle est plausible pour le Sénégal
+  const lat = Number(p.lat), lng = Number(p.lng);
+  // Un quartier choisi dans la liste l'emporte sur la position
+  const gps = !p.quartier && p.lat && p.lng && lat >= 12 && lat <= 17 && lng >= -18 && lng <= -11 ? { lat, lng } : null;
+
   // « partout » = choix explicite de ne filtrer sur aucun quartier (sinon on retombe sur celui du profil)
-  const quartier = p.quartier === "partout" ? "" : (p.quartier ?? profil?.quartier ?? "");
+  const quartier = gps || p.quartier === "partout" ? "" : (p.quartier ?? profil?.quartier ?? "");
   const metier = metiers.find((m) => m.slug === p.metier);
   const nomQuartier = quartiers.find((q) => q.slug === quartier)?.nom;
 
-  const { data, error } = await supabase.rpc("rechercher_artisans", {
+  const filtresBase = {
     p_metier: metier?.slug ?? null,
-    p_quartier: quartier || null,
     p_note_min: p.note === "4" ? 4 : 0,
     p_dispo_seulement: p.dispo === "1",
     p_verifies_seulement: p.verifie === "1",
-  });
+  };
+  let { data, error } = await supabase.rpc(
+    "rechercher_artisans",
+    gps ? { ...filtresBase, p_quartier: null, p_lat: gps.lat, p_lng: gps.lng } : { ...filtresBase, p_quartier: quartier || null },
+  );
+  // Base pas encore à jour pour le GPS : on retombe sur le quartier du profil
+  if (error && gps) ({ data, error } = await supabase.rpc("rechercher_artisans", { ...filtresBase, p_quartier: profil?.quartier ?? null }));
   const resultats = (data ?? []) as ArtisanRecherche[];
+  const { data: proche } = gps ? await supabase.rpc("quartier_proche", { p_lat: gps.lat, p_lng: gps.lng }) : { data: null };
+  const quartierGps = (proche as { nom: string; distance_km: number }[] | null)?.[0];
 
   // Construit le lien d'un filtre en conservant les autres
   const lien = (cle: keyof Params, valeur: string | null) => {
     const q = new URLSearchParams();
-    const tous = { ...p, quartier: quartier || "partout", [cle]: valeur ?? undefined };
+    const tous = { ...p, quartier: gps ? undefined : quartier || "partout", [cle]: valeur ?? undefined };
     Object.entries(tous).forEach(([k, v]) => v && q.set(k, v));
     return `/recherche?${q.toString()}`;
   };
@@ -64,16 +78,26 @@ export default async function Recherche({ searchParams }: { searchParams: Promis
               ))}
             </select>
             <label className="sr-only" htmlFor="quartier">Quartier</label>
-            <select id="quartier" name="quartier" defaultValue={quartier || "partout"} className="champ min-h-12 w-[42%] border-0 bg-fond font-semibold">
+            <select id="quartier" name="quartier" defaultValue={gps ? "" : quartier || "partout"} className="champ min-h-12 w-[42%] border-0 bg-fond font-semibold">
+              {gps ? <option value="">📍 Autour de moi</option> : null}
               <option value="partout">Partout</option>
               {quartiers.map((q) => (
                 <option key={q.slug} value={q.slug}>{q.nom}</option>
               ))}
             </select>
           </div>
+          {gps ? (
+            <>
+              <input type="hidden" name="lat" value={p.lat} />
+              <input type="hidden" name="lng" value={p.lng} />
+            </>
+          ) : null}
           <button className="bouton min-h-12">Rechercher</button>
         </form>
         <div className="flex flex-wrap gap-2">
+          <Suspense>
+            <AutourDeMoi actif={Boolean(gps)} />
+          </Suspense>
           {filtres.map((f) => (
             <Link
               key={f.cle}
@@ -95,18 +119,22 @@ export default async function Recherche({ searchParams }: { searchParams: Promis
             {resultats.length} {metier ? metier.nom.toLowerCase() : "artisan"}
             {resultats.length > 1 ? "s" : ""}
           </strong>
-          {nomQuartier ? `, les plus proches de ${nomQuartier} d'abord` : ""}
+          {gps
+            ? `, les plus proches de vous d'abord${quartierGps && quartierGps.distance_km < 4 ? ` (vers ${quartierGps.nom})` : ""}`
+            : nomQuartier
+              ? `, les plus proches de ${nomQuartier} d'abord`
+              : ""}
         </p>
         {error ? <Vide>La recherche est indisponible pour le moment.</Vide> : null}
         {!error && resultats.length === 0 ? (
           <Vide>
             Personne ne correspond pour l&apos;instant.{" "}
-            <Link href="/devis/nouvelle" className="font-semibold text-nuit">Publiez une demande</Link> : les
-            artisans du métier seront prévenus.
+            <Link href="/devis/nouvelle" className="font-semibold text-nuit">Publiez une demande</Link> : elle
+            apparaîtra dans le tableau des artisans du métier.
           </Vide>
         ) : null}
         {resultats.map((a) => (
-          <CarteArtisan key={a.id} a={a} />
+          <CarteArtisan key={a.id} a={a} depuisGps={Boolean(gps)} />
         ))}
       </main>
       <BarreNav role={profil?.role} />

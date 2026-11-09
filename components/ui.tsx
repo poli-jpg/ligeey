@@ -16,8 +16,12 @@ function teinte(nom: string) {
   return TEINTES[h % TEINTES.length];
 }
 
-export function Avatar({ nom, taille = "md" }: { nom: string; taille?: "sm" | "md" | "lg" }) {
+export function Avatar({ nom, taille = "md", url }: { nom: string; taille?: "sm" | "md" | "lg"; url?: string | null }) {
   const t = { sm: "size-10 text-sm", md: "size-12 text-[15px]", lg: "size-[88px] text-3xl" }[taille];
+  if (url) {
+    // eslint-disable-next-line @next/next/no-img-element -- photo de profil servie par Supabase Storage
+    return <img src={url} alt="" loading="lazy" decoding="async" className={`${t} shrink-0 rounded-full bg-photo object-cover`} />;
+  }
   return (
     <span className={`${t} ${teinte(nom)} flex shrink-0 items-center justify-center rounded-full font-titre font-bold`}>
       {initiales(nom)}

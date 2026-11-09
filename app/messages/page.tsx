@@ -2,7 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/supabase/server";
-import { heure } from "@/lib/format";
+import { quand } from "@/lib/format";
+import { PastilleNonLus } from "@/components/NonLus";
 import { BarreNav } from "@/components/BarreNav";
 import { Avatar, Entete, Vide } from "@/components/ui";
 
@@ -22,7 +23,8 @@ export default async function Messages() {
   const { supabase, user, profil } = await getSession();
   if (!user) redirect("/connexion?suite=/messages");
 
-  const { data } = await supabase
+  const [{ data }, { data: nonLus }] = await Promise.all([
+    supabase
     .from("conversations")
     .select(
       `id, client_id, artisan_id, dernier_message_at,
@@ -31,7 +33,10 @@ export default async function Messages() {
        demande:demandes(description)`,
     )
     .order("dernier_message_at", { ascending: false })
-    .limit(50);
+    .limit(50),
+    supabase.rpc("mes_non_lus"),
+  ]);
+  const aLire = Object.fromEntries(((nonLus ?? []) as { conversation_id: string; nb: number }[]).map((l) => [l.conversation_id, l.nb]));
 
   const conversations = (data ?? []) as unknown as Ligne[];
 
@@ -45,16 +50,20 @@ export default async function Messages() {
         {conversations.map((c) => {
           const jeSuisClient = c.client_id === user.id;
           const nom = (jeSuisClient ? c.artisan?.profil?.nom_complet : c.client?.nom_complet) ?? "Utilisateur";
+          const n = aLire[c.id] ?? 0;
           return (
             <Link key={c.id} href={`/messages/${c.id}`} className="flex items-center gap-3 pl-4 active:bg-fond">
               <Avatar nom={nom} />
               <span className="flex min-w-0 flex-1 flex-col gap-0.5 border-b border-trait py-3.5 pr-4">
                 <span className="flex items-baseline justify-between gap-2">
-                  <span className="truncate text-[16px] font-bold">{nom}</span>
-                  <span className="shrink-0 text-xs text-gris">{heure(c.dernier_message_at)}</span>
+                  <span className={`truncate text-[16px] ${n ? "font-extrabold" : "font-bold"}`}>{nom}</span>
+                  <span className={`shrink-0 text-xs ${n ? "font-bold text-red-600" : "text-gris"}`}>{quand(c.dernier_message_at)}</span>
                 </span>
-                <span className="truncate text-sm text-gris">
-                  {c.demande ? `Devis : ${c.demande.description}` : jeSuisClient ? "Artisan" : "Client"}
+                <span className="flex items-center justify-between gap-2">
+                  <span className={`truncate text-sm ${n ? "font-semibold text-encre" : "text-gris"}`}>
+                    {n ? `${n} nouveau${n > 1 ? "x" : ""} message${n > 1 ? "s" : ""}` : c.demande ? `Devis : ${c.demande.description}` : jeSuisClient ? "Artisan" : "Client"}
+                  </span>
+                  <PastilleNonLus n={n} />
                 </span>
               </span>
             </Link>

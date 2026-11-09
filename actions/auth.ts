@@ -245,3 +245,28 @@ export async function deconnexion() {
   await supabase.auth.signOut();
   redirect("/");
 }
+
+// ---------------------------------------------------------------------
+// Supprimer son compte (définitif)
+// ---------------------------------------------------------------------
+export async function supprimerMonCompte(): Promise<EtatSimple> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/connexion");
+
+  // Fichiers de l'utilisateur d'abord (la base ne peut pas effacer le stockage elle-même)
+  for (const bucket of ["realisations", "pieces-identite"]) {
+    const { data: fichiers } = await supabase.storage.from(bucket).list(user.id, { limit: 1000 });
+    if (fichiers?.length) await supabase.storage.from(bucket).remove(fichiers.map((f) => `${user.id}/${f.name}`));
+  }
+
+  const { error } = await supabase.rpc("supprimer_mon_compte");
+  if (error) {
+    console.error("supprimerMonCompte", error.code, error.message);
+    return { erreur: /administrateur/.test(error.message) ? "Un compte administrateur ne se supprime pas depuis l'appli." : "Suppression impossible pour le moment. Réessayez ou contactez Ligeey." };
+  }
+  await supabase.auth.signOut();
+  redirect("/?compte=supprime");
+}
