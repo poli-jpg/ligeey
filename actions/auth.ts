@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { LONGUEUR_MIN_MOT_DE_PASSE, normaliserTelephone } from "@/lib/format";
+import { REGLES, TROP_DE_TENTATIVES, autoriser } from "@/lib/limite";
 
 /*
  * Authentification Ligeey : numéro de téléphone + mot de passe.
@@ -11,10 +12,20 @@ import { LONGUEUR_MIN_MOT_DE_PASSE, normaliserTelephone } from "@/lib/format";
  * - La connexion se fait avec le mot de passe, sans SMS.
  */
 
-/** N'accepte que les chemins internes ("/messages"), jamais une URL externe. */
+/**
+ * N'accepte que les chemins internes ("/messages"), jamais une URL externe.
+ * Attention aux pièges : "//site.com" et "/\\site.com" sont lus comme une autre
+ * adresse par les navigateurs.
+ */
 function cheminSur(valeur: FormDataEntryValue | null) {
   const s = String(valeur ?? "/");
-  return s.startsWith("/") && !s.startsWith("//") ? s : "/";
+  if (!s.startsWith("/") || s.startsWith("//") || /[\\\s\u0000-\u001f]/.test(s)) return "/";
+  try {
+    const u = new URL(s, "https://ligeey.local");
+    return u.origin === "https://ligeey.local" ? u.pathname + u.search + u.hash : "/";
+  } catch {
+    return "/";
+  }
 }
 
 function lireTelephone(formData: FormData) {
@@ -68,6 +79,7 @@ export async function inscription(etat: EtatInscription, formData: FormData): Pr
     if (!telephone) return { etape: "infos", saisie, erreur: NUMERO_INVALIDE };
     const probleme = verifierMotDePasse(motDePasse);
     if (probleme) return { etape: "infos", saisie, erreur: probleme };
+    if (!(await autoriser(supabase, REGLES.sms, telephone))) return { etape: "infos", saisie, erreur: TROP_DE_TENTATIVES };
 
     const { data, error } = await supabase.auth.signUp({
       phone: telephone,
@@ -99,12 +111,14 @@ export async function inscription(etat: EtatInscription, formData: FormData): Pr
 
   // Étape 2 : code SMS de confirmation du numéro
   if (formData.get("renvoyer") === "1" && etat.telephone) {
+    if (!(await autoriser(supabase, REGLES.sms, etat.telephone))) return { ...etat, erreur: TROP_DE_TENTATIVES, renvoye: false };
     const { error } = await supabase.auth.resend({ type: "sms", phone: etat.telephone });
     return { ...etat, erreur: error ? "Renvoi impossible, attendez une minute." : undefined, renvoye: !error };
   }
 
   const code = lireCode(formData);
   if (!etat.telephone || code.length !== 6) return { ...etat, erreur: CODE_INVALIDE, renvoye: false };
+  if (!(await autoriser(supabase, REGLES.code, etat.telephone))) return { ...etat, erreur: TROP_DE_TENTATIVES, renvoye: false };
 
   const { data, error } = await supabase.auth.verifyOtp({ phone: etat.telephone, token: code, type: "sms" });
   if (error || !data.user) return { ...etat, erreur: "Code incorrect ou expiré.", renvoye: false };
@@ -126,6 +140,7 @@ export async function connexion(etat: EtatConnexion, formData: FormData): Promis
   if (etat.etape === "code") {
     const code = lireCode(formData);
     if (!etat.telephone || code.length !== 6) return { ...etat, erreur: CODE_INVALIDE };
+    if (!(await autoriser(supabase, REGLES.code, etat.telephone))) return { ...etat, erreur: TROP_DE_TENTATIVES };
     const { data, error } = await supabase.auth.verifyOtp({ phone: etat.telephone, token: code, type: "sms" });
     if (error || !data.user) return { ...etat, erreur: "Code incorrect ou expiré." };
     await allerApresConnexion(supabase, data.user.id, suite);
@@ -136,11 +151,12 @@ export async function connexion(etat: EtatConnexion, formData: FormData): Promis
   const saisie = { telephone: String(formData.get("telephone") ?? "") };
   if (!telephone) return { etape: "identifiants", saisie, erreur: NUMERO_INVALIDE };
   if (!motDePasse) return { etape: "identifiants", saisie, erreur: "Entrez votre mot de passe." };
+  if (!(await autoriser(supabase, REGLES.connexion, telephone))) return { etape: "identifiants", saisie, erreur: TROP_DE_TENTATIVES };
 
   const { data, error } = await supabase.auth.signInWithPassword({ phone: telephone, password: motDePasse });
 
   if (error?.code === "phone_not_confirmed") {
-    await supabase.auth.resend({ type: "sms", phone: telephone });
+    if (await autoriser(supabase, REGLES.sms, telephone)) await supabase.auth.resend({ type: "sms", phone: telephone });
     return { etape: "code", telephone, erreur: undefined };
   }
   if (error || !data.user) {
@@ -163,6 +179,7 @@ export async function reinitialiserMotDePasse(etat: EtatReinitialisation, formDa
   if (etat.etape === "telephone") {
     const telephone = lireTelephone(formData);
     if (!telephone) return { etape: "telephone", saisie: { telephone: String(formData.get("telephone") ?? "") }, erreur: NUMERO_INVALIDE };
+    if (!(await autoriser(supabase, REGLES.sms, telephone))) return { etape: "telephone", erreur: TROP_DE_TENTATIVES };
     // shouldCreateUser: false → cette page ne crée jamais de compte
     const { error } = await supabase.auth.signInWithOtp({ phone: telephone, options: { shouldCreateUser: false } });
     if (smsNonEnvoye(error)) {
@@ -182,6 +199,7 @@ export async function reinitialiserMotDePasse(etat: EtatReinitialisation, formDa
   if (!etat.telephone || code.length !== 6) return { ...etat, erreur: CODE_INVALIDE };
   const probleme = verifierMotDePasse(motDePasse);
   if (probleme) return { ...etat, erreur: probleme };
+  if (!(await autoriser(supabase, REGLES.code, etat.telephone))) return { ...etat, erreur: TROP_DE_TENTATIVES };
 
   const { data, error } = await supabase.auth.verifyOtp({ phone: etat.telephone, token: code, type: "sms" });
   if (error || !data.user) return { ...etat, erreur: "Code incorrect ou expiré." };

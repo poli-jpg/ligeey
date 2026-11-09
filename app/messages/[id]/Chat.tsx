@@ -98,7 +98,7 @@ export function Chat(props: Props) {
       .select()
       .single();
     setEnvoi(false);
-    if (error) return setErreur("Message non envoyé. Vérifiez votre connexion.");
+    if (error) return setErreur(error.message.startsWith("limite_atteinte") ? "Vous envoyez trop de messages. Patientez une minute." : "Message non envoyé. Vérifiez votre connexion.");
     setTexte("");
     ajouterMessage(data as Message);
   }
@@ -162,7 +162,7 @@ export function Chat(props: Props) {
               .insert({ ...champs, conversation_id: conversationId, artisan_id: moi, client_id: clientId })
               .select()
               .single();
-            if (error) return "Offre non envoyée. Vérifiez les champs.";
+            if (error) return error.message.startsWith("limite_atteinte") ? "Trop d'offres envoyées. Patientez un peu." : "Offre non envoyée. Vérifiez les champs.";
             majOffre(data as Offre);
             setFormOffre(false);
             return null;

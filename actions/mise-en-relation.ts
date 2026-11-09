@@ -90,6 +90,9 @@ export async function publierDemande(_: EtatDemande, formData: FormData): Promis
   if (description.length < 10) return { erreur: "Décrivez le travail en quelques mots (10 caractères minimum)." };
 
   const { error } = await supabase.from("demandes").insert(demande);
+  if (error?.message.startsWith("limite_atteinte")) {
+    return { erreur: "Vous avez déjà publié 5 demandes aujourd'hui. Réessayez demain." };
+  }
   if (error) {
     console.error("publierDemande", error.message);
     return { erreur: "Publication impossible. Réessayez." };

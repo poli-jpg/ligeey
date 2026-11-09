@@ -135,6 +135,7 @@ export async function envoyerVerification(d: DossierIdentite): Promise<{ erreur?
 
   if (error) {
     await supabase.storage.from("pieces-identite").remove(chemins);
+    if (error.message.startsWith("limite_atteinte")) return { erreur: "Trop d'envois aujourd'hui. Réessayez demain." };
     if (error.code === "23505") {
       return { erreur: "Cette pièce d'identité est déjà utilisée par un autre compte. Contactez Ligeey si c'est une erreur." };
     }
